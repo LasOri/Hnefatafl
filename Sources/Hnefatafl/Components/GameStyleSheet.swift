@@ -1,0 +1,207 @@
+import LINKER
+
+struct GameStyleSheet {
+    static let css = """
+    :root {
+        --board-bg: #5c3a1e;
+        --square-bg: #d4a76a;
+        --square-corner: #8b6914;
+        --square-throne: #c9a84c;
+        --text-primary: #2d1b0e;
+        --text-light: #e8dcc8;
+        --accent-gold: #c9a84c;
+        --glow-color: rgba(201, 168, 76, 0.6);
+    }
+
+    .viking-app {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--board-bg);
+        color: var(--text-light);
+        min-height: 100vh;
+        padding: 1rem;
+    }
+
+    .viking-theme {
+        background: var(--board-bg);
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .board {
+        display: grid;
+        grid-template-columns: repeat(11, 1fr);
+        gap: 1px;
+        max-width: 550px;
+        width: 100%;
+        aspect-ratio: 1;
+    }
+
+    .board-row {
+        display: contents;
+    }
+
+    .square {
+        aspect-ratio: 1;
+        background: var(--square-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+        transition: background-color 0.15s;
+    }
+
+    .square:hover {
+        filter: brightness(1.1);
+    }
+
+    .square-corner {
+        background: var(--square-corner);
+        border: 2px solid var(--accent-gold);
+    }
+
+    .square-throne {
+        background: var(--square-throne);
+        border: 2px dashed var(--accent-gold);
+    }
+
+    .piece-attacker, .piece-defender, .piece-king {
+        cursor: grab;
+    }
+
+    .selected {
+        outline: 2px solid var(--accent-gold);
+        outline-offset: -2px;
+    }
+
+    .glow {
+        box-shadow: 0 0 12px 4px var(--glow-color);
+        z-index: 1;
+    }
+
+    .move-indicator {
+        background: rgba(201, 168, 76, 0.3);
+    }
+
+    .move-indicator::after {
+        content: '';
+        width: 30%;
+        height: 30%;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        opacity: 0.7;
+        position: absolute;
+    }
+
+    .game-over-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+    }
+
+    .game-over-text {
+        color: var(--accent-gold);
+        font-size: 2rem;
+        text-align: center;
+    }
+
+    .capture-effect {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent-gold);
+        animation: particle-burst 0.5s ease-out forwards;
+    }
+
+    @keyframes particle-burst {
+        0% { transform: scale(1); opacity: 1; }
+        100% { transform: scale(0); opacity: 0; }
+    }
+
+    .move-trail {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.5;
+    }
+
+    .toolbar {
+        display: flex;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--accent-gold);
+        background: transparent;
+        color: var(--text-light);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.875rem;
+    }
+
+    .btn:hover {
+        background: rgba(201, 168, 76, 0.2);
+    }
+
+    .status {
+        text-align: center;
+        margin: 0.5rem 0;
+    }
+
+    .move-history-panel {
+        max-height: 200px;
+        overflow-y: auto;
+        width: 100%;
+        max-width: 550px;
+    }
+
+    .move-history {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+    }
+
+    .move-item {
+        padding: 2px 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+    }
+
+    @media (max-width: 600px) {
+        .board {
+            max-width: 100vw;
+        }
+        .game-over-text {
+            font-size: 1.5rem;
+        }
+    }
+    """
+
+    static func render() -> [AnyNode] {
+        let style = Element<AnyHTMLContext>(
+            tag: "style",
+            attributes: [],
+            children: [AnyNode(Text(css))]
+        )
+        return [AnyNode(style)]
+    }
+}
