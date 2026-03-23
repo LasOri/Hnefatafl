@@ -25,9 +25,20 @@ struct BoardComponent {
                 Attribute(name: "role", value: "grid"),
                 Attribute(name: "aria-label", value: "Hnefatafl game board")
             ],
-            children: rows
+            children: rows + overlayNodes(state: state)
         )
         return [AnyNode(board)]
+    }
+
+    private static func overlayNodes(state: GameState) -> [AnyNode] {
+        var overlays: [AnyNode] = []
+        if let lastMove = state.lastMove {
+            overlays.append(contentsOf: MoveTrail.render(move: lastMove))
+        }
+        for square in state.capturedSquares {
+            overlays.append(contentsOf: CaptureEffect.render(row: square.row, col: square.col))
+        }
+        return overlays
     }
 
     private static func squareElement(state: GameState, row: Int, col: Int) -> Element<AnyHTMLContext> {

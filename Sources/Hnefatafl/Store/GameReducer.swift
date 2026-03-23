@@ -56,7 +56,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         attackersCaptured: state.attackersCaptured,
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
-        aiMode: state.aiMode
+        aiMode: state.aiMode,
+        pendingSoundEffect: .select
     )
 }
 
@@ -65,9 +66,16 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
     let (capturedAttackers, capturedDefenders) = countCaptures(
         before: state.game.position, after: newGame.position
     )
+    let captured = Position.capturedSquares(
+        before: state.game.position,
+        after: newGame.position,
+        movedFrom: (row: move.fromRow, col: move.fromCol)
+    )
 
     var newUndoStack = state.undoStack
     newUndoStack.append((game: state.game, attackersCaptured: state.attackersCaptured, defendersCaptured: state.defendersCaptured))
+
+    let humanSound = soundForMove(captured: captured, gameStatus: newGame.status)
 
     var result = GameState(
         game: newGame,
@@ -76,7 +84,10 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         attackersCaptured: state.attackersCaptured + capturedAttackers,
         defendersCaptured: state.defendersCaptured + capturedDefenders,
         undoStack: newUndoStack,
-        aiMode: state.aiMode
+        aiMode: state.aiMode,
+        lastMove: move,
+        capturedSquares: captured,
+        pendingSoundEffect: humanSound
     )
 
     if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode) {
@@ -84,8 +95,14 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         let (aiCapturedAttackers, aiCapturedDefenders) = countCaptures(
             before: result.game.position, after: aiGame.position
         )
+        let aiCaptured = Position.capturedSquares(
+            before: result.game.position,
+            after: aiGame.position,
+            movedFrom: (row: aiMove.fromRow, col: aiMove.fromCol)
+        )
         var aiUndoStack = result.undoStack
         aiUndoStack.append((game: result.game, attackersCaptured: result.attackersCaptured, defendersCaptured: result.defendersCaptured))
+        let aiSound = soundForMove(captured: aiCaptured, gameStatus: aiGame.status)
         result = GameState(
             game: aiGame,
             selectedSquare: nil,
@@ -93,11 +110,27 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             attackersCaptured: result.attackersCaptured + aiCapturedAttackers,
             defendersCaptured: result.defendersCaptured + aiCapturedDefenders,
             undoStack: aiUndoStack,
-            aiMode: result.aiMode
+            aiMode: result.aiMode,
+            lastMove: aiMove,
+            capturedSquares: aiCaptured,
+            pendingSoundEffect: prioritySound(humanSound, aiSound)
         )
     }
 
     return result
+}
+
+private func soundForMove(captured: [(row: Int, col: Int)], gameStatus: GameStatus) -> SoundEffect {
+    if gameStatus != .inProgress { return .gameOver }
+    if !captured.isEmpty { return .capture }
+    return .move
+}
+
+private func prioritySound(_ a: SoundEffect, _ b: SoundEffect) -> SoundEffect {
+    let order: [SoundEffect] = [.gameOver, .capture, .move, .select]
+    let aIdx = order.firstIndex(of: a) ?? order.count
+    let bIdx = order.firstIndex(of: b) ?? order.count
+    return aIdx <= bIdx ? a : b
 }
 
 private func countCaptures(before: Position, after: Position) -> (attackers: Int, defenders: Int) {

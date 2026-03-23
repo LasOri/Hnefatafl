@@ -12,7 +12,7 @@ struct AIGameLoop {
             return nil
         case .humanVsAI(let humanSide):
             guard game.currentPlayer != humanSide else { return nil }
-            return SimpleAI.pickMove(game: game)
+            return EvaluationAI.pickMove(game: game)
         }
     }
 }

@@ -22,4 +22,9 @@ class AudioBridge {
         guard !muted else { return }
         lastPlayed = effect
     }
+
+    func processState(_ state: GameState) {
+        guard let effect = state.pendingSoundEffect else { return }
+        play(effect)
+    }
 }

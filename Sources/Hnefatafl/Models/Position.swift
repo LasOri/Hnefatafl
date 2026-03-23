@@ -81,6 +81,14 @@ struct Position: Equatable {
         cells[Position.index(row: row, col: col)]
     }
 
+    var attackerCount: Int {
+        cells.filter { $0 == .attacker }.count
+    }
+
+    var defenderCount: Int {
+        cells.filter { $0 == .defender || $0 == .king }.count
+    }
+
     func applyMove(_ move: Move) -> Position {
         var newCells = cells
         let movingPiece = newCells[Position.index(row: move.fromRow, col: move.fromCol)]
@@ -307,6 +315,7 @@ struct Position: Equatable {
             }
         }
         if !kingFound { return .attackerWins }
+        if position.attackerCount == 0 { return .defenderWins }
         if position.allLegalMoves(for: currentPlayer).isEmpty {
             return currentPlayer == .attacker ? .defenderWins : .attackerWins
         }
@@ -355,5 +364,17 @@ struct Position: Equatable {
             }
         }
         return moves
+    }
+
+    static func capturedSquares(before: Position, after: Position, movedFrom: (row: Int, col: Int)) -> [(row: Int, col: Int)] {
+        let fromIndex = index(row: movedFrom.row, col: movedFrom.col)
+        var result: [(row: Int, col: Int)] = []
+        for i in 0..<cellCount {
+            guard i != fromIndex else { continue }
+            if before.cells[i] != nil && after.cells[i] == nil {
+                result.append((row: i / boardSize, col: i % boardSize))
+            }
+        }
+        return result
     }
 }

@@ -23,6 +23,7 @@ struct Game {
         guard baseStatus == .inProgress else { return baseStatus }
         let repetitionCount = positionHistory.filter { $0 == position }.count
         if repetitionCount >= 3 { return .draw }
+        if moveHistory.count >= 200 { return .draw }
         return .inProgress
     }
 
