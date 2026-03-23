@@ -7,13 +7,13 @@ import JavaScriptEventLoop
 
 JavaScriptEventLoop.installGlobalExecutor()
 
-print("[swift] Hnefatafl - Viking Board Game")
-print("[swift] Built with LINKER Framework")
+let store = createGameStore()
+let runtime = LinkerRuntime(store: store, rootElementId: "app")
+runtime.setNodeRender(PageRenderer.renderForStore())
 
-Task {
-    await App.main()
-}
+DOMEventBridge.setup(runtime: runtime)
 
 #else
 print("Hnefatafl - Native mode (no WASM)")
+print("Run with swift test to execute the test suite.")
 #endif

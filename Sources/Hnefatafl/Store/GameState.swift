@@ -6,6 +6,7 @@ struct GameState: Equatable {
     let defendersCaptured: Int
     let undoStack: [(game: Game, attackersCaptured: Int, defendersCaptured: Int)]
     let focusedSquare: (row: Int, col: Int)?
+    let aiMode: AIMode
 
     init() {
         game = Game()
@@ -15,6 +16,7 @@ struct GameState: Equatable {
         defendersCaptured = 0
         undoStack = []
         focusedSquare = (row: 0, col: 0)
+        aiMode = .humanVsHuman
     }
 
     init(
@@ -24,7 +26,8 @@ struct GameState: Equatable {
         attackersCaptured: Int,
         defendersCaptured: Int,
         undoStack: [(game: Game, attackersCaptured: Int, defendersCaptured: Int)] = [],
-        focusedSquare: (row: Int, col: Int)? = (row: 0, col: 0)
+        focusedSquare: (row: Int, col: Int)? = (row: 0, col: 0),
+        aiMode: AIMode = .humanVsHuman
     ) {
         self.game = game
         self.selectedSquare = selectedSquare
@@ -33,6 +36,7 @@ struct GameState: Equatable {
         self.defendersCaptured = defendersCaptured
         self.undoStack = undoStack
         self.focusedSquare = focusedSquare
+        self.aiMode = aiMode
     }
 
     static func == (lhs: GameState, rhs: GameState) -> Bool {
@@ -43,6 +47,7 @@ struct GameState: Equatable {
         lhs.attackersCaptured == rhs.attackersCaptured &&
         lhs.defendersCaptured == rhs.defendersCaptured &&
         lhs.focusedSquare?.row == rhs.focusedSquare?.row &&
-        lhs.focusedSquare?.col == rhs.focusedSquare?.col
+        lhs.focusedSquare?.col == rhs.focusedSquare?.col &&
+        lhs.aiMode == rhs.aiMode
     }
 }

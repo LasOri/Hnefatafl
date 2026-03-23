@@ -11,4 +11,5 @@ enum GameAction: Action {
     case undo
     case moveFocus(FocusDirection)
     case escape
+    case toggleAI
 }

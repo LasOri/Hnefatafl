@@ -6,7 +6,7 @@ struct AppComponent {
 
         children.append(contentsOf: StatusComponent.render(state: state))
         children.append(contentsOf: BoardComponent.render(state: state))
-        children.append(contentsOf: toolbarNodes())
+        children.append(contentsOf: toolbarNodes(aiMode: state.aiMode))
         children.append(contentsOf: MoveHistoryComponent.render(state: state))
         children.append(contentsOf: GameOverOverlay.render(status: state.game.status))
 
@@ -20,7 +20,7 @@ struct AppComponent {
         return [AnyNode(container)]
     }
 
-    private static func toolbarNodes() -> [AnyNode] {
+    private static func toolbarNodes(aiMode: AIMode) -> [AnyNode] {
         let undoBtn = Element<AnyHTMLContext>(
             tag: "button",
             attributes: [
@@ -41,6 +41,17 @@ struct AppComponent {
             children: [AnyNode(Text("New Game"))]
         )
 
+        let aiLabel = aiMode == .humanVsHuman ? "Play vs AI" : "Play vs Human"
+        let aiBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-ai"),
+                Attribute(name: "data-action", value: "toggle-ai"),
+                Attribute(name: "aria-label", value: aiLabel)
+            ],
+            children: [AnyNode(Text(aiLabel))]
+        )
+
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -48,7 +59,7 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn)]
         )
         return [AnyNode(toolbar)]
     }

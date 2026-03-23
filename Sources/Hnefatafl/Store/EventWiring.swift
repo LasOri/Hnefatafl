@@ -30,6 +30,7 @@ struct EventWiring {
         switch action {
         case "new-game": return .newGame
         case "undo": return .undo
+        case "toggle-ai": return .toggleAI
         default: return nil
         }
     }

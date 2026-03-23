@@ -21,6 +21,9 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .escape:
         return reduceEscape(state: state)
+
+    case .toggleAI:
+        return reduceToggleAI(state: state)
     }
 }
 
@@ -32,7 +35,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             legalMovesForSelected: [],
             attackersCaptured: state.attackersCaptured,
             defendersCaptured: state.defendersCaptured,
-            undoStack: state.undoStack
+            undoStack: state.undoStack,
+            aiMode: state.aiMode
         )
     }
 
@@ -51,7 +55,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         legalMovesForSelected: moves,
         attackersCaptured: state.attackersCaptured,
         defendersCaptured: state.defendersCaptured,
-        undoStack: state.undoStack
+        undoStack: state.undoStack,
+        aiMode: state.aiMode
     )
 }
 
@@ -70,7 +75,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         legalMovesForSelected: [],
         attackersCaptured: state.attackersCaptured + capturedAttackers,
         defendersCaptured: state.defendersCaptured + capturedDefenders,
-        undoStack: newUndoStack
+        undoStack: newUndoStack,
+        aiMode: state.aiMode
     )
 }
 
@@ -92,7 +98,8 @@ private func reduceUndo(state: GameState) -> GameState {
         legalMovesForSelected: [],
         attackersCaptured: previous.attackersCaptured,
         defendersCaptured: previous.defendersCaptured,
-        undoStack: newUndoStack
+        undoStack: newUndoStack,
+        aiMode: state.aiMode
     )
 }
 
@@ -116,7 +123,8 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         attackersCaptured: state.attackersCaptured,
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
-        focusedSquare: (row: newRow, col: newCol)
+        focusedSquare: (row: newRow, col: newCol),
+        aiMode: state.aiMode
     )
 }
 
@@ -128,6 +136,27 @@ private func reduceEscape(state: GameState) -> GameState {
         attackersCaptured: state.attackersCaptured,
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
-        focusedSquare: state.focusedSquare
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode
+    )
+}
+
+private func reduceToggleAI(state: GameState) -> GameState {
+    let newMode: AIMode
+    switch state.aiMode {
+    case .humanVsHuman:
+        newMode = .humanVsAI(humanSide: .defender)
+    case .humanVsAI:
+        newMode = .humanVsHuman
+    }
+    return GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: newMode
     )
 }
