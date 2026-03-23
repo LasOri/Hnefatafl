@@ -73,7 +73,7 @@ struct BoardComponent {
                 Attribute(name: "data-action", value: "square-click"),
                 Attribute(name: "role", value: "gridcell"),
                 Attribute(name: "aria-label", value: ariaLabel),
-                Attribute(name: "tabindex", value: (row == 0 && col == 0) ? "0" : "-1")
+                Attribute(name: "tabindex", value: (state.focusedSquare?.row == row && state.focusedSquare?.col == col) ? "0" : "-1")
             ],
             children: children
         )
