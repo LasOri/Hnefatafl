@@ -21,7 +21,7 @@ struct BoardComponent {
         let board = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
-                Attribute(name: "class", value: "board"),
+                Attribute(name: "class", value: "board viking-theme"),
                 Attribute(name: "role", value: "grid"),
                 Attribute(name: "aria-label", value: "Hnefatafl game board")
             ],
@@ -52,10 +52,17 @@ struct BoardComponent {
             }
         }
 
-        if isSelected { classes.append("selected") }
-        if isLegalMove { classes.append("legal-move") }
+        if isSelected {
+            classes.append("selected")
+            classes.append("glow")
+        }
+        if isLegalMove {
+            classes.append("legal-move")
+            classes.append("move-indicator")
+        }
 
         let ariaLabel = squareAriaLabel(piece: piece, row: row, col: col)
+        let children: [AnyNode] = piece.map { PieceView.render(piece: $0) } ?? []
 
         return Element<AnyHTMLContext>(
             tag: "div",
@@ -68,14 +75,12 @@ struct BoardComponent {
                 Attribute(name: "aria-label", value: ariaLabel),
                 Attribute(name: "tabindex", value: (row == 0 && col == 0) ? "0" : "-1")
             ],
-            children: []
+            children: children
         )
     }
 
     private static func squareAriaLabel(piece: Piece?, row: Int, col: Int) -> String {
-        let colLetter = String(UnicodeScalar(65 + col)!)
-        let rowNumber = "\(row + 1)"
-        let coord = "\(colLetter)\(rowNumber)"
+        let coord = "\(Position.columnLetter(col))\(row + 1)"
 
         if let piece {
             switch piece {

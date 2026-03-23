@@ -16,6 +16,11 @@ enum SquareType {
 struct Position: Equatable {
     static let boardSize = 11
     static let cellCount = boardSize * boardSize
+
+    static func columnLetter(_ col: Int) -> String {
+        String(UnicodeScalar(65 + col)!)
+    }
+
     private static let directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
 
     let cells: [Piece?]
