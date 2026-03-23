@@ -31,6 +31,7 @@ struct EventWiring {
         case "new-game": return .newGame
         case "undo": return .undo
         case "toggle-ai": return .toggleAI
+        case "toggle-mute": return .toggleMute
         default: return nil
         }
     }

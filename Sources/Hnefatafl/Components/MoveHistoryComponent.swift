@@ -8,7 +8,9 @@ struct MoveHistoryComponent {
             let prefix = isAttacker ? "\(moveNumber). " : ""
             let fromCol = Position.columnLetter(move.fromCol)
             let toCol = Position.columnLetter(move.toCol)
-            let text = "\(prefix)\(fromCol)\(move.fromRow + 1)-\(toCol)\(move.toRow + 1)"
+            let isCapture = index < state.captureHistory.count && state.captureHistory[index]
+            let separator = isCapture ? "x" : "-"
+            let text = "\(prefix)\(fromCol)\(move.fromRow + 1)\(separator)\(toCol)\(move.toRow + 1)"
 
             let li = Element<AnyHTMLContext>(
                 tag: "li",

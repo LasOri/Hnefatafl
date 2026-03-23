@@ -194,6 +194,81 @@ struct GameStyleSheet {
             font-size: 1.5rem;
         }
     }
+
+    .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        max-width: 550px;
+        margin: 0.5rem 0;
+    }
+
+    .status-turn {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .status-in-progress {
+        color: var(--text-light);
+    }
+
+    .status-game-over {
+        color: var(--accent-gold);
+        font-size: 1.3rem;
+    }
+
+    .status-captures {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    .capture-count {
+        padding: 2px 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+    }
+
+    .square:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: -2px;
+        z-index: 2;
+    }
+
+    .legal-move {
+        background: rgba(201, 168, 76, 0.3);
+    }
+
+    .btn:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+    }
+
+    .btn:active {
+        background: rgba(201, 168, 76, 0.4);
+    }
+
+    .piece-svg-attacker, .piece-svg-defender, .piece-svg-king {
+        width: 80%;
+        height: 80%;
+    }
+
+    .focused {
+        outline: 2px dashed #fff;
+        outline-offset: -2px;
+        z-index: 1;
+    }
+
+    .coord-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+        color: rgba(232, 220, 200, 0.5);
+        user-select: none;
+    }
     """
 
     static func render() -> [AnyNode] {

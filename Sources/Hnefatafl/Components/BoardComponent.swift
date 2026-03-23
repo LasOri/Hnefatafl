@@ -3,8 +3,16 @@ import LINKER
 struct BoardComponent {
     static func render(state: GameState) -> [AnyNode] {
         var rows: [AnyNode] = []
+
+        rows.append(contentsOf: columnLabelRow())
+
         for row in 0..<Position.boardSize {
-            var cells: [AnyNode] = []
+            let rowLabel = Element<AnyHTMLContext>(
+                tag: "span",
+                attributes: [Attribute(name: "class", value: "coord-label")],
+                children: [AnyNode(Text("\(row + 1)"))]
+            )
+            var cells: [AnyNode] = [AnyNode(rowLabel)]
             for col in 0..<Position.boardSize {
                 cells.append(AnyNode(squareElement(state: state, row: row, col: col)))
             }
@@ -28,6 +36,30 @@ struct BoardComponent {
             children: rows + overlayNodes(state: state)
         )
         return [AnyNode(board)]
+    }
+
+    private static func columnLabelRow() -> [AnyNode] {
+        let letters = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K"]
+        let spacer = Element<AnyHTMLContext>(
+            tag: "span",
+            attributes: [Attribute(name: "class", value: "coord-label")],
+            children: []
+        )
+        var nodes: [AnyNode] = [AnyNode(spacer)]
+        for letter in letters {
+            let label = Element<AnyHTMLContext>(
+                tag: "span",
+                attributes: [Attribute(name: "class", value: "coord-label")],
+                children: [AnyNode(Text(letter))]
+            )
+            nodes.append(AnyNode(label))
+        }
+        let headerRow = Element<AnyHTMLContext>(
+            tag: "div",
+            attributes: [Attribute(name: "class", value: "coord-row")],
+            children: nodes
+        )
+        return [AnyNode(headerRow)]
     }
 
     private static func overlayNodes(state: GameState) -> [AnyNode] {
@@ -70,6 +102,9 @@ struct BoardComponent {
         if isLegalMove {
             classes.append("legal-move")
             classes.append("move-indicator")
+        }
+        if state.focusedSquare?.row == row && state.focusedSquare?.col == col {
+            classes.append("focused")
         }
 
         let ariaLabel = squareAriaLabel(piece: piece, row: row, col: col)

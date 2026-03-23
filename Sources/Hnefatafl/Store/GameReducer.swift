@@ -5,7 +5,7 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     switch action {
     case .newGame:
-        return GameState()
+        return reduceNewGame(state: state)
 
     case .selectSquare(let row, let col):
         return reduceSelectSquare(state: state, row: row, col: col)
@@ -24,7 +24,34 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .toggleAI:
         return reduceToggleAI(state: state)
+
+    case .toggleMute:
+        return reduceToggleMute(state: state)
     }
+}
+
+private func reduceNewGame(state: GameState) -> GameState {
+    GameState(
+        game: Game(),
+        selectedSquare: nil,
+        legalMovesForSelected: [],
+        muted: state.muted
+    )
+}
+
+private func reduceToggleMute(state: GameState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        muted: !state.muted,
+        captureHistory: state.captureHistory
+    )
 }
 
 private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameState {
@@ -36,7 +63,9 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             attackersCaptured: state.attackersCaptured,
             defendersCaptured: state.defendersCaptured,
             undoStack: state.undoStack,
-            aiMode: state.aiMode
+            aiMode: state.aiMode,
+            muted: state.muted,
+            captureHistory: state.captureHistory
         )
     }
 
@@ -57,7 +86,9 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
         aiMode: state.aiMode,
-        pendingSoundEffect: .select
+        pendingSoundEffect: .select,
+        muted: state.muted,
+        captureHistory: state.captureHistory
     )
 }
 
@@ -77,6 +108,9 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
 
     let humanSound = soundForMove(captured: captured, gameStatus: newGame.status)
 
+    var newCaptureHistory = state.captureHistory
+    newCaptureHistory.append(!captured.isEmpty)
+
     var result = GameState(
         game: newGame,
         selectedSquare: nil,
@@ -87,7 +121,9 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         aiMode: state.aiMode,
         lastMove: move,
         capturedSquares: captured,
-        pendingSoundEffect: humanSound
+        pendingSoundEffect: humanSound,
+        muted: state.muted,
+        captureHistory: newCaptureHistory
     )
 
     if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode) {
@@ -103,6 +139,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         var aiUndoStack = result.undoStack
         aiUndoStack.append((game: result.game, attackersCaptured: result.attackersCaptured, defendersCaptured: result.defendersCaptured))
         let aiSound = soundForMove(captured: aiCaptured, gameStatus: aiGame.status)
+        var aiCaptureHistory = result.captureHistory
+        aiCaptureHistory.append(!aiCaptured.isEmpty)
         result = GameState(
             game: aiGame,
             selectedSquare: nil,
@@ -113,7 +151,9 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             aiMode: result.aiMode,
             lastMove: aiMove,
             capturedSquares: aiCaptured,
-            pendingSoundEffect: prioritySound(humanSound, aiSound)
+            pendingSoundEffect: prioritySound(humanSound, aiSound),
+            muted: state.muted,
+            captureHistory: aiCaptureHistory
         )
     }
 
@@ -148,6 +188,9 @@ private func reduceUndo(state: GameState) -> GameState {
 
     if case .humanVsAI = state.aiMode, let humanPrevious = newUndoStack.last {
         newUndoStack.removeLast()
+        var newCaptureHistory = state.captureHistory
+        if !newCaptureHistory.isEmpty { newCaptureHistory.removeLast() }
+        if !newCaptureHistory.isEmpty { newCaptureHistory.removeLast() }
         return GameState(
             game: humanPrevious.game,
             selectedSquare: nil,
@@ -155,10 +198,14 @@ private func reduceUndo(state: GameState) -> GameState {
             attackersCaptured: humanPrevious.attackersCaptured,
             defendersCaptured: humanPrevious.defendersCaptured,
             undoStack: newUndoStack,
-            aiMode: state.aiMode
+            aiMode: state.aiMode,
+            muted: state.muted,
+            captureHistory: newCaptureHistory
         )
     }
 
+    var newCaptureHistory = state.captureHistory
+    if !newCaptureHistory.isEmpty { newCaptureHistory.removeLast() }
     return GameState(
         game: previous.game,
         selectedSquare: nil,
@@ -166,7 +213,9 @@ private func reduceUndo(state: GameState) -> GameState {
         attackersCaptured: previous.attackersCaptured,
         defendersCaptured: previous.defendersCaptured,
         undoStack: newUndoStack,
-        aiMode: state.aiMode
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: newCaptureHistory
     )
 }
 
@@ -191,7 +240,9 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
         focusedSquare: (row: newRow, col: newCol),
-        aiMode: state.aiMode
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory
     )
 }
 
@@ -204,7 +255,9 @@ private func reduceEscape(state: GameState) -> GameState {
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
         focusedSquare: state.focusedSquare,
-        aiMode: state.aiMode
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory
     )
 }
 
@@ -224,6 +277,8 @@ private func reduceToggleAI(state: GameState) -> GameState {
         defendersCaptured: state.defendersCaptured,
         undoStack: state.undoStack,
         focusedSquare: state.focusedSquare,
-        aiMode: newMode
+        aiMode: newMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory
     )
 }
