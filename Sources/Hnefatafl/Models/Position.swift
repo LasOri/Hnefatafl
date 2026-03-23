@@ -88,6 +88,7 @@ struct Position: Equatable {
         newCells[Position.index(row: move.fromRow, col: move.fromCol)] = nil
 
         newCells = Position.performCustodialCaptures(newCells, movedTo: (move.toRow, move.toCol), movingPiece: movingPiece)
+        newCells = Position.performShieldWallCaptures(newCells, movedTo: (move.toRow, move.toCol), movingPiece: movingPiece)
         newCells = Position.checkKingCapture(newCells)
 
         return Position(cells: newCells)
@@ -126,6 +127,117 @@ struct Position: Equatable {
 
     private static func isInBounds(row: Int, col: Int) -> Bool {
         row >= 0 && row < boardSize && col >= 0 && col < boardSize
+    }
+
+    private static func performShieldWallCaptures(_ cells: [Piece?], movedTo: (Int, Int), movingPiece: Piece?) -> [Piece?] {
+        guard let movingPiece else { return cells }
+        let (toRow, toCol) = movedTo
+        let isAttacker = movingPiece.isAttackerSide
+
+        var newCells = cells
+
+        let edges: [(edgeRow: Int?, edgeCol: Int?, dr: Int, dc: Int)] = [
+            (edgeRow: 0, edgeCol: nil, dr: 1, dc: 0),
+            (edgeRow: boardSize - 1, edgeCol: nil, dr: -1, dc: 0),
+            (edgeRow: nil, edgeCol: 0, dr: 0, dc: 1),
+            (edgeRow: nil, edgeCol: boardSize - 1, dr: 0, dc: -1)
+        ]
+
+        for edge in edges {
+            let onEdge: Bool
+            if let edgeRow = edge.edgeRow {
+                onEdge = toRow == edgeRow
+            } else if let edgeCol = edge.edgeCol {
+                onEdge = toCol == edgeCol
+            } else {
+                continue
+            }
+            guard onEdge else { continue }
+
+            let isHorizontal = edge.edgeRow != nil
+            let fixedCoord = isHorizontal ? toRow : toCol
+            let movingCoord = isHorizontal ? toCol : toRow
+
+            let wallIndices = findWallSegments(
+                cells: newCells,
+                isHorizontal: isHorizontal,
+                fixedCoord: fixedCoord,
+                movingCoord: movingCoord,
+                isAttacker: isAttacker,
+                dr: edge.dr,
+                dc: edge.dc
+            )
+            for indices in wallIndices {
+                for idx in indices {
+                    newCells[idx] = nil
+                }
+            }
+        }
+
+        return newCells
+    }
+
+    private static func findWallSegments(
+        cells: [Piece?],
+        isHorizontal: Bool,
+        fixedCoord: Int,
+        movingCoord: Int,
+        isAttacker: Bool,
+        dr: Int,
+        dc: Int
+    ) -> [[Int]] {
+        var result: [[Int]] = []
+
+        for searchDir in [-1, 1] {
+            var wallPieces: [Int] = []
+            var pos = movingCoord + searchDir
+
+            while pos >= 0, pos < boardSize {
+                let row = isHorizontal ? fixedCoord : pos
+                let col = isHorizontal ? pos : fixedCoord
+                let idx = index(row: row, col: col)
+                guard let piece = cells[idx], piece != .king else { break }
+
+                let isEnemy = isAttacker ? piece.isDefenderSide : piece.isAttackerSide
+                guard isEnemy else { break }
+
+                wallPieces.append(idx)
+                pos += searchDir
+            }
+
+            guard wallPieces.count >= 2 else { continue }
+
+            let endPos = movingCoord + searchDir * (wallPieces.count + 1)
+            let endRow = isHorizontal ? fixedCoord : endPos
+            let endCol = isHorizontal ? endPos : fixedCoord
+
+            let farEndClosed: Bool
+            if !isInBounds(row: endRow, col: endCol) {
+                farEndClosed = false
+            } else if squareType(row: endRow, col: endCol) == .corner {
+                farEndClosed = true
+            } else if let endPiece = cells[index(row: endRow, col: endCol)] {
+                farEndClosed = isAttacker ? endPiece.isAttackerSide : endPiece.isDefenderSide
+            } else {
+                farEndClosed = false
+            }
+            guard farEndClosed else { continue }
+
+            let allBacked = wallPieces.allSatisfy { idx in
+                let row = idx / boardSize
+                let col = idx % boardSize
+                let backRow = row + dr
+                let backCol = col + dc
+                guard isInBounds(row: backRow, col: backCol) else { return false }
+                guard let backPiece = cells[index(row: backRow, col: backCol)] else { return false }
+                return isAttacker ? backPiece.isAttackerSide : backPiece.isDefenderSide
+            }
+            guard allBacked else { continue }
+
+            result.append(wallPieces)
+        }
+
+        return result
     }
 
     private static func findKing(_ cells: [Piece?]) -> (row: Int, col: Int)? {

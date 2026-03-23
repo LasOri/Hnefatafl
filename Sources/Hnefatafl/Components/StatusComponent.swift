@@ -9,7 +9,8 @@ struct StatusComponent {
         switch status {
         case .inProgress:
             let player = state.game.currentPlayer == .attacker ? "Attacker" : "Defender"
-            turnText = "\(player)'s turn"
+            let isAI = isCurrentPlayerAI(state: state)
+            turnText = isAI ? "\(player)'s turn (AI)" : "\(player)'s turn"
             statusClass = "status-in-progress"
         case .defenderWins:
             turnText = "Defenders win!"
@@ -46,6 +47,11 @@ struct StatusComponent {
             children: [AnyNode(turnElement), AnyNode(captureElement)]
         )
         return [AnyNode(container)]
+    }
+
+    private static func isCurrentPlayerAI(state: GameState) -> Bool {
+        guard case .humanVsAI(let humanSide) = state.aiMode else { return false }
+        return state.game.currentPlayer != humanSide
     }
 
     private static func captureCount(label: String, count: Int) -> Element<AnyHTMLContext> {

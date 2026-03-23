@@ -69,7 +69,7 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
     var newUndoStack = state.undoStack
     newUndoStack.append((game: state.game, attackersCaptured: state.attackersCaptured, defendersCaptured: state.defendersCaptured))
 
-    return GameState(
+    var result = GameState(
         game: newGame,
         selectedSquare: nil,
         legalMovesForSelected: [],
@@ -78,6 +78,26 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         undoStack: newUndoStack,
         aiMode: state.aiMode
     )
+
+    if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode) {
+        let aiGame = result.game.makeMove(aiMove)
+        let (aiCapturedAttackers, aiCapturedDefenders) = countCaptures(
+            before: result.game.position, after: aiGame.position
+        )
+        var aiUndoStack = result.undoStack
+        aiUndoStack.append((game: result.game, attackersCaptured: result.attackersCaptured, defendersCaptured: result.defendersCaptured))
+        result = GameState(
+            game: aiGame,
+            selectedSquare: nil,
+            legalMovesForSelected: [],
+            attackersCaptured: result.attackersCaptured + aiCapturedAttackers,
+            defendersCaptured: result.defendersCaptured + aiCapturedDefenders,
+            undoStack: aiUndoStack,
+            aiMode: result.aiMode
+        )
+    }
+
+    return result
 }
 
 private func countCaptures(before: Position, after: Position) -> (attackers: Int, defenders: Int) {
@@ -92,6 +112,20 @@ private func reduceUndo(state: GameState) -> GameState {
     guard let previous = state.undoStack.last else { return state }
     var newUndoStack = state.undoStack
     newUndoStack.removeLast()
+
+    if case .humanVsAI = state.aiMode, let humanPrevious = newUndoStack.last {
+        newUndoStack.removeLast()
+        return GameState(
+            game: humanPrevious.game,
+            selectedSquare: nil,
+            legalMovesForSelected: [],
+            attackersCaptured: humanPrevious.attackersCaptured,
+            defendersCaptured: humanPrevious.defendersCaptured,
+            undoStack: newUndoStack,
+            aiMode: state.aiMode
+        )
+    }
+
     return GameState(
         game: previous.game,
         selectedSquare: nil,
