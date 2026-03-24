@@ -37,6 +37,9 @@ struct GameStyleSheet {
         max-width: 550px;
         width: 100%;
         aspect-ratio: 1;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
     }
 
     .board-row {
@@ -52,6 +55,8 @@ struct GameStyleSheet {
         cursor: pointer;
         position: relative;
         transition: background-color 0.15s;
+        min-width: 44px;
+        min-height: 44px;
     }
 
     .square:hover {
@@ -149,6 +154,8 @@ struct GameStyleSheet {
         display: flex;
         gap: 0.5rem;
         margin: 0.5rem 0;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .btn {
@@ -198,6 +205,10 @@ struct GameStyleSheet {
         }
         .game-over-text {
             font-size: 1.5rem;
+        }
+        .btn {
+            padding: 0.625rem 1.25rem;
+            font-size: 1rem;
         }
     }
 
