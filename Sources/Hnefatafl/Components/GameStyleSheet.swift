@@ -72,6 +72,12 @@ struct GameStyleSheet {
         cursor: grab;
     }
 
+    .dragging {
+        cursor: grabbing;
+        opacity: 0.7;
+        z-index: 10;
+    }
+
     .selected {
         outline: 2px solid var(--accent-gold);
         outline-offset: -2px;
