@@ -87,6 +87,17 @@ struct AppComponent {
             children: [AnyNode(Text(difficultyLabel))]
         )
 
+        let flipLabel = state.boardFlipped ? "Unflip Board" : "Flip Board"
+        let flipBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-flip"),
+                Attribute(name: "data-action", value: "flip-board"),
+                Attribute(name: "aria-label", value: flipLabel)
+            ],
+            children: [AnyNode(Text(flipLabel))]
+        )
+
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -94,7 +105,7 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(flipBtn)]
         )
         return [AnyNode(toolbar)]
     }

@@ -30,6 +30,9 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .cycleDifficulty:
         return reduceCycleDifficulty(state: state)
+
+    case .flipBoard:
+        return reduceFlipBoard(state: state)
     }
 }
 
@@ -39,7 +42,8 @@ private func reduceNewGame(state: GameState) -> GameState {
         selectedSquare: nil,
         legalMovesForSelected: [],
         muted: state.muted,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -55,7 +59,8 @@ private func reduceToggleMute(state: GameState) -> GameState {
         aiMode: state.aiMode,
         muted: !state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -71,7 +76,25 @@ private func reduceCycleDifficulty(state: GameState) -> GameState {
         aiMode: state.aiMode,
         muted: state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty.next
+        aiDifficulty: state.aiDifficulty.next,
+        boardFlipped: state.boardFlipped
+    )
+}
+
+private func reduceFlipBoard(state: GameState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: !state.boardFlipped
     )
 }
 
@@ -87,7 +110,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             aiMode: state.aiMode,
             muted: state.muted,
             captureHistory: state.captureHistory,
-            aiDifficulty: state.aiDifficulty
+            aiDifficulty: state.aiDifficulty,
+            boardFlipped: state.boardFlipped
         )
     }
 
@@ -111,7 +135,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         pendingSoundEffect: .select,
         muted: state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -155,7 +180,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         muted: state.muted,
         captureHistory: newCaptureHistory,
         aiDifficulty: state.aiDifficulty,
-        announcement: humanAnnouncement
+        announcement: humanAnnouncement,
+        boardFlipped: state.boardFlipped
     )
 
     if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty) {
@@ -193,7 +219,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             muted: state.muted,
             captureHistory: aiCaptureHistory,
             aiDifficulty: state.aiDifficulty,
-            announcement: aiAnnouncement
+            announcement: aiAnnouncement,
+            boardFlipped: state.boardFlipped
         )
     }
 
@@ -266,7 +293,8 @@ private func reduceUndo(state: GameState) -> GameState {
             aiMode: state.aiMode,
             muted: state.muted,
             captureHistory: newCaptureHistory,
-            aiDifficulty: state.aiDifficulty
+            aiDifficulty: state.aiDifficulty,
+            boardFlipped: state.boardFlipped
         )
     }
 
@@ -282,7 +310,8 @@ private func reduceUndo(state: GameState) -> GameState {
         aiMode: state.aiMode,
         muted: state.muted,
         captureHistory: newCaptureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -310,7 +339,8 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         aiMode: state.aiMode,
         muted: state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -326,7 +356,8 @@ private func reduceEscape(state: GameState) -> GameState {
         aiMode: state.aiMode,
         muted: state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }
 
@@ -349,6 +380,7 @@ private func reduceToggleAI(state: GameState) -> GameState {
         aiMode: newMode,
         muted: state.muted,
         captureHistory: state.captureHistory,
-        aiDifficulty: state.aiDifficulty
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped
     )
 }

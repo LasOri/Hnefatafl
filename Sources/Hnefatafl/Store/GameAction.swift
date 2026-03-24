@@ -14,4 +14,5 @@ enum GameAction: Action {
     case toggleAI
     case toggleMute
     case cycleDifficulty
+    case flipBoard
 }
