@@ -21,4 +21,5 @@ enum GameAction: Action {
     case replayForward
     case replayBack
     case requestHint
+    case toggleCoordinates
 }

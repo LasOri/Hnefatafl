@@ -40,6 +40,7 @@ struct EventWiring {
         case "replay-forward": return .replayForward
         case "replay-back": return .replayBack
         case "request-hint": return .requestHint
+        case "toggle-coordinates": return .toggleCoordinates
         default: return nil
         }
     }

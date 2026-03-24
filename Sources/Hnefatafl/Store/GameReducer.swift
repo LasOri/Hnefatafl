@@ -51,6 +51,9 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .requestHint:
         return reduceRequestHint(state: state)
+
+    case .toggleCoordinates:
+        return reduceToggleCoordinates(state: state)
     }
 }
 
@@ -63,7 +66,8 @@ private func reduceNewGame(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -82,7 +86,8 @@ private func reduceToggleMute(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -101,7 +106,8 @@ private func reduceCycleDifficulty(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty.next,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -120,7 +126,8 @@ private func reduceFlipBoard(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: !state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -139,7 +146,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             aiDifficulty: state.aiDifficulty,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
-            replayStep: state.replayStep
+            replayStep: state.replayStep,
+            showCoordinates: state.showCoordinates
         )
     }
 
@@ -166,7 +174,8 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -213,7 +222,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         announcement: humanAnnouncement,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 
     if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty) {
@@ -254,7 +264,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             announcement: aiAnnouncement,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
-            replayStep: state.replayStep
+            replayStep: state.replayStep,
+            showCoordinates: state.showCoordinates
         )
     }
 
@@ -330,7 +341,8 @@ private func reduceUndo(state: GameState) -> GameState {
             aiDifficulty: state.aiDifficulty,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
-            replayStep: state.replayStep
+            replayStep: state.replayStep,
+            showCoordinates: state.showCoordinates
         )
     }
 
@@ -349,7 +361,8 @@ private func reduceUndo(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -380,7 +393,8 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -399,7 +413,8 @@ private func reduceEscape(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -425,7 +440,8 @@ private func reduceToggleAI(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -444,7 +460,8 @@ private func reduceToggleRules(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: !state.showRules,
-        replayStep: state.replayStep
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -463,7 +480,8 @@ private func reduceEnterReplay(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: max(0, lastStep)
+        replayStep: max(0, lastStep),
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -481,7 +499,8 @@ private func reduceExitReplay(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: nil
+        replayStep: nil,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -502,7 +521,8 @@ private func reduceReplayForward(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: next
+        replayStep: next,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -522,7 +542,8 @@ private func reduceReplayBack(state: GameState) -> GameState {
         aiDifficulty: state.aiDifficulty,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
-        replayStep: prev
+        replayStep: prev,
+        showCoordinates: state.showCoordinates
     )
 }
 
@@ -543,6 +564,27 @@ private func reduceRequestHint(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        hintMove: hint
+        hintMove: hint,
+        showCoordinates: state.showCoordinates
+    )
+}
+
+private func reduceToggleCoordinates(state: GameState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        replayStep: state.replayStep,
+        showCoordinates: !state.showCoordinates
     )
 }
