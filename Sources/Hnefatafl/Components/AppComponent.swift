@@ -10,6 +10,30 @@ struct AppComponent {
         children.append(contentsOf: MoveHistoryComponent.render(state: state))
         children.append(contentsOf: GameOverOverlay.render(status: state.game.status))
 
+        if state.showRules {
+            let closeBtn = Element<AnyHTMLContext>(
+                tag: "button",
+                attributes: [
+                    Attribute(name: "class", value: "btn btn-close-rules"),
+                    Attribute(name: "data-action", value: "toggle-rules"),
+                    Attribute(name: "aria-label", value: "Close rules")
+                ],
+                children: [AnyNode(Text("Close"))]
+            )
+            var overlayChildren = RulesContent.render()
+            overlayChildren.append(AnyNode(closeBtn))
+            let overlay = Element<AnyHTMLContext>(
+                tag: "div",
+                attributes: [
+                    Attribute(name: "class", value: "rules-overlay"),
+                    Attribute(name: "role", value: "dialog"),
+                    Attribute(name: "aria-label", value: "Game rules")
+                ],
+                children: overlayChildren
+            )
+            children.append(AnyNode(overlay))
+        }
+
         let announcementText = state.announcement ?? ""
         let liveRegion = Element<AnyHTMLContext>(
             tag: "div",
@@ -98,6 +122,16 @@ struct AppComponent {
             children: [AnyNode(Text(flipLabel))]
         )
 
+        let rulesBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-rules"),
+                Attribute(name: "data-action", value: "toggle-rules"),
+                Attribute(name: "aria-label", value: "Rules")
+            ],
+            children: [AnyNode(Text("Rules"))]
+        )
+
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -105,7 +139,7 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(flipBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(flipBtn), AnyNode(rulesBtn)]
         )
         return [AnyNode(toolbar)]
     }

@@ -15,6 +15,7 @@ struct GameState: Equatable {
     let aiDifficulty: AIDifficulty
     let announcement: String?
     let boardFlipped: Bool
+    let showRules: Bool
 
     init() {
         game = Game()
@@ -33,6 +34,7 @@ struct GameState: Equatable {
         aiDifficulty = .medium
         announcement = nil
         boardFlipped = false
+        showRules = false
     }
 
     init(
@@ -51,7 +53,8 @@ struct GameState: Equatable {
         captureHistory: [Bool] = [],
         aiDifficulty: AIDifficulty = .medium,
         announcement: String? = nil,
-        boardFlipped: Bool = false
+        boardFlipped: Bool = false,
+        showRules: Bool = false
     ) {
         self.game = game
         self.selectedSquare = selectedSquare
@@ -69,6 +72,7 @@ struct GameState: Equatable {
         self.aiDifficulty = aiDifficulty
         self.announcement = announcement
         self.boardFlipped = boardFlipped
+        self.showRules = showRules
     }
 
     static func == (lhs: GameState, rhs: GameState) -> Bool {
@@ -87,6 +91,7 @@ struct GameState: Equatable {
         lhs.captureHistory == rhs.captureHistory &&
         lhs.aiDifficulty == rhs.aiDifficulty &&
         lhs.announcement == rhs.announcement &&
-        lhs.boardFlipped == rhs.boardFlipped
+        lhs.boardFlipped == rhs.boardFlipped &&
+        lhs.showRules == rhs.showRules
     }
 }

@@ -34,6 +34,7 @@ struct EventWiring {
         case "toggle-mute": return .toggleMute
         case "cycle-difficulty": return .cycleDifficulty
         case "flip-board": return .flipBoard
+        case "toggle-rules": return .toggleRules
         default: return nil
         }
     }
