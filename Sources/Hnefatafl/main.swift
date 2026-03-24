@@ -13,6 +13,9 @@ runtime.setNodeRender(PageRenderer.renderForStore())
 
 DOMEventBridge.setup(runtime: runtime)
 
+let audioSubscriber = AudioSubscriber()
+store.subscribe { state in audioSubscriber.handleStateChange(state) }
+
 #else
 print("Hnefatafl - Native mode (no WASM)")
 print("Run with swift test to execute the test suite.")

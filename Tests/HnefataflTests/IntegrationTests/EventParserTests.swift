@@ -59,4 +59,20 @@ struct EventParserTests {
         let result = EventParser.parseButtonAction("")
         #expect(result == nil)
     }
+
+    @Test("parseButtonAction passes toggle-mute through")
+    func parsesToggleMute() {
+        let result = EventParser.parseButtonAction("toggle-mute")
+        #expect(result == "toggle-mute")
+    }
+
+    @Test("toggle-mute round-trip through parser and wiring")
+    func toggleMuteRoundTrip() {
+        let parsed = EventParser.parseButtonAction("toggle-mute")
+        let action = EventWiring.actionForButton(parsed!)
+        #expect(action != nil)
+        if case .toggleMute = action {} else {
+            Issue.record("Expected .toggleMute")
+        }
+    }
 }
