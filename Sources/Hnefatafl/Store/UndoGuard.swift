@@ -17,4 +17,39 @@ struct UndoGuard {
 
         return false
     }
+
+    static func confirmMessage(moveCount: Int, captureCount: Int = 0) -> String {
+        var msg = "Undo \(moveCount) moves?"
+        if captureCount > 0 {
+            msg += " This will restore \(captureCount) captured pieces."
+        }
+        return msg
+    }
+}
+
+struct ConfirmDialog: Equatable {
+    let isVisible: Bool
+    let message: String?
+
+    init() {
+        isVisible = false
+        message = nil
+    }
+
+    private init(isVisible: Bool, message: String?) {
+        self.isVisible = isVisible
+        self.message = message
+    }
+
+    func show(message: String) -> ConfirmDialog {
+        ConfirmDialog(isVisible: true, message: message)
+    }
+
+    func dismiss() -> ConfirmDialog {
+        ConfirmDialog(isVisible: false, message: nil)
+    }
+
+    func confirm() -> ConfirmDialog {
+        ConfirmDialog(isVisible: false, message: nil)
+    }
 }
