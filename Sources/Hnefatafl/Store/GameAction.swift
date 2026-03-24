@@ -20,4 +20,5 @@ enum GameAction: Action {
     case exitReplay
     case replayForward
     case replayBack
+    case requestHint
 }

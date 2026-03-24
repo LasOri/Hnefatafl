@@ -48,6 +48,9 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .replayBack:
         return reduceReplayBack(state: state)
+
+    case .requestHint:
+        return reduceRequestHint(state: state)
     }
 }
 
@@ -520,5 +523,26 @@ private func reduceReplayBack(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: prev
+    )
+}
+
+private func reduceRequestHint(state: GameState) -> GameState {
+    let hint = HintEngine.bestMove(for: state.game)
+    return GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        replayStep: state.replayStep,
+        hintMove: hint
     )
 }
