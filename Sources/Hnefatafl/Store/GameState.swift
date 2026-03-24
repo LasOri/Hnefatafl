@@ -12,6 +12,8 @@ struct GameState: Equatable {
     let pendingSoundEffect: SoundEffect?
     let muted: Bool
     let captureHistory: [Bool]
+    let aiDifficulty: AIDifficulty
+    let announcement: String?
 
     init() {
         game = Game()
@@ -27,6 +29,8 @@ struct GameState: Equatable {
         pendingSoundEffect = nil
         muted = false
         captureHistory = []
+        aiDifficulty = .medium
+        announcement = nil
     }
 
     init(
@@ -42,7 +46,9 @@ struct GameState: Equatable {
         capturedSquares: [(row: Int, col: Int)] = [],
         pendingSoundEffect: SoundEffect? = nil,
         muted: Bool = false,
-        captureHistory: [Bool] = []
+        captureHistory: [Bool] = [],
+        aiDifficulty: AIDifficulty = .medium,
+        announcement: String? = nil
     ) {
         self.game = game
         self.selectedSquare = selectedSquare
@@ -57,6 +63,8 @@ struct GameState: Equatable {
         self.pendingSoundEffect = pendingSoundEffect
         self.muted = muted
         self.captureHistory = captureHistory
+        self.aiDifficulty = aiDifficulty
+        self.announcement = announcement
     }
 
     static func == (lhs: GameState, rhs: GameState) -> Bool {
@@ -72,6 +80,8 @@ struct GameState: Equatable {
         lhs.lastMove == rhs.lastMove &&
         lhs.pendingSoundEffect == rhs.pendingSoundEffect &&
         lhs.muted == rhs.muted &&
-        lhs.captureHistory == rhs.captureHistory
+        lhs.captureHistory == rhs.captureHistory &&
+        lhs.aiDifficulty == rhs.aiDifficulty &&
+        lhs.announcement == rhs.announcement
     }
 }

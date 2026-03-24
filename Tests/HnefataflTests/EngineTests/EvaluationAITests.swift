@@ -83,7 +83,7 @@ struct EvaluationAITests {
             .placing(.king, row: 8, col: 8)
             .build()
         let game = Game(position: position, currentPlayer: .attacker, moveHistory: [])
-        let move = EvaluationAI.pickMove(game: game)
+        let move = EvaluationAI.pickMove(game: game, depth: 1)
         #expect(move != nil)
         #expect(move?.toRow == 3)
         #expect(move?.toCol == 2)

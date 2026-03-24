@@ -269,6 +269,12 @@ struct GameStyleSheet {
         color: rgba(232, 220, 200, 0.5);
         user-select: none;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+        .particle { animation: none; }
+        .move-trail { transition: none; }
+        .square { transition: none; }
+    }
     """
 
     static func render() -> [AnyNode] {

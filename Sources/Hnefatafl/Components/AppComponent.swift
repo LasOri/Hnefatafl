@@ -10,6 +10,18 @@ struct AppComponent {
         children.append(contentsOf: MoveHistoryComponent.render(state: state))
         children.append(contentsOf: GameOverOverlay.render(status: state.game.status))
 
+        let announcementText = state.announcement ?? ""
+        let liveRegion = Element<AnyHTMLContext>(
+            tag: "div",
+            attributes: [
+                Attribute(name: "aria-live", value: "assertive"),
+                Attribute(name: "class", value: "sr-only"),
+                Attribute(name: "style", value: "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)")
+            ],
+            children: [AnyNode(Text(announcementText))]
+        )
+        children.append(AnyNode(liveRegion))
+
         let container = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -64,6 +76,17 @@ struct AppComponent {
             children: [AnyNode(Text(muteLabel))]
         )
 
+        let difficultyLabel = "AI: \(state.aiDifficulty.label)"
+        let difficultyBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-difficulty"),
+                Attribute(name: "data-action", value: "cycle-difficulty"),
+                Attribute(name: "aria-label", value: difficultyLabel)
+            ],
+            children: [AnyNode(Text(difficultyLabel))]
+        )
+
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -71,7 +94,7 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn)]
         )
         return [AnyNode(toolbar)]
     }
