@@ -16,4 +16,8 @@ enum GameAction: Action {
     case cycleDifficulty
     case flipBoard
     case toggleRules
+    case enterReplay
+    case exitReplay
+    case replayForward
+    case replayBack
 }

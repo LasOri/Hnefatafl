@@ -35,6 +35,10 @@ struct EventWiring {
         case "cycle-difficulty": return .cycleDifficulty
         case "flip-board": return .flipBoard
         case "toggle-rules": return .toggleRules
+        case "enter-replay": return .enterReplay
+        case "exit-replay": return .exitReplay
+        case "replay-forward": return .replayForward
+        case "replay-back": return .replayBack
         default: return nil
         }
     }
