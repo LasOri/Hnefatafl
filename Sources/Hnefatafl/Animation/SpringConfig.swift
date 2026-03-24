@@ -3,11 +3,43 @@ import Foundation
 struct SpringConfig: Equatable {
     let stiffness: Double
     let damping: Double
+    let mass: Double
+
+    init(stiffness: Double = 300, damping: Double = 20, mass: Double = 1.0) {
+        self.stiffness = stiffness
+        self.damping = damping
+        self.mass = mass
+    }
+
+    var naturalFrequency: Double {
+        sqrt(stiffness / mass)
+    }
+
+    var dampingRatio: Double {
+        damping / (2.0 * sqrt(stiffness * mass))
+    }
+
+    var isUnderdamped: Bool {
+        dampingRatio < 1.0
+    }
+
+    var settlingTime: Double {
+        let omega = naturalFrequency
+        let zeta = dampingRatio
+        guard zeta > 0 && omega > 0 else { return 1.0 }
+        return 4.0 / (zeta * omega)
+    }
+
+    func cssTransition(property: String) -> String {
+        let duration = settlingTime
+        return "\(property) \(String(format: "%.2f", duration))s ease-out"
+    }
 
     static let gentle = SpringConfig(stiffness: 120, damping: 14)
     static let wobbly = SpringConfig(stiffness: 180, damping: 12)
     static let stiff = SpringConfig(stiffness: 400, damping: 28)
     static let slow = SpringConfig(stiffness: 80, damping: 16)
+    static let snappy = SpringConfig(stiffness: 500, damping: 25)
 }
 
 struct Spring {
