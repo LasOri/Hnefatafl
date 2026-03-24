@@ -311,6 +311,16 @@ struct GameStyleSheet {
         100% { transform: scale(0); opacity: 0; }
     }
 
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-4px); }
+        75% { transform: translateX(4px); }
+    }
+
+    .shake {
+        animation: shake 0.3s ease-in-out;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .particle { animation: none; }
         .move-trail { transition: none; animation: none; }
