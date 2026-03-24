@@ -317,6 +317,26 @@ struct GameStyleSheet {
         .square { transition: none; }
         .animating { animation: none; }
     }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --board-bg: #1a1207;
+            --square-bg: #3d2a14;
+            --text-light: #e0d5c0;
+        }
+    }
+
+    @media (prefers-contrast: more) {
+        :root {
+            --board-bg: #000;
+            --square-bg: #f5e6c8;
+            --text-primary: #000;
+            --text-light: #fff;
+            --accent-gold: #ff0;
+        }
+        .square { border: 2px solid #000; }
+        .btn { border-width: 2px; }
+    }
     """
 
     static func render() -> [AnyNode] {
