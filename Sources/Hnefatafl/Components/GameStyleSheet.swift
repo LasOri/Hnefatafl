@@ -270,10 +270,35 @@ struct GameStyleSheet {
         user-select: none;
     }
 
+    @keyframes piece-move {
+        from { transform: translate(var(--move-dx), var(--move-dy)); }
+        to { transform: translate(0, 0); }
+    }
+
+    .animating {
+        animation: piece-move 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes trail-fade {
+        from { opacity: 0; }
+        to { opacity: 0.5; }
+    }
+
+    .move-trail {
+        animation: trail-fade 0.2s ease-in forwards;
+    }
+
+    @keyframes capture-burst {
+        0% { transform: scale(0); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.8; }
+        100% { transform: scale(0); opacity: 0; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .particle { animation: none; }
-        .move-trail { transition: none; }
+        .move-trail { transition: none; animation: none; }
         .square { transition: none; }
+        .animating { animation: none; }
     }
     """
 
