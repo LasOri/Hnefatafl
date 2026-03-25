@@ -31,6 +31,44 @@ struct KingEscapePath {
         return results.sorted { $0.length < $1.length }
     }
 
+    static func shortestPathLength(position: Position) -> Int? {
+        guard let kingPos = findKing(position) else { return nil }
+        let size = Position.boardSize
+
+        var queue: [(row: Int, col: Int, dist: Int)] = [(kingPos.row, kingPos.col, 0)]
+        var visited = Array(repeating: false, count: size * size)
+        visited[kingPos.row * size + kingPos.col] = true
+
+        var head = 0
+        while head < queue.count {
+            let current = queue[head]
+            head += 1
+
+            if corners.contains(where: { $0.0 == current.row && $0.1 == current.col }) {
+                return current.dist
+            }
+
+            var simCells = position.cells
+            let origIdx = kingPos.row * size + kingPos.col
+            simCells[origIdx] = nil
+            simCells[current.row * size + current.col] = .king
+            let simPos = Position(cells: simCells)
+
+            let moves = simPos.legalMoves(forPieceAtRow: current.row, col: current.col)
+            for move in moves {
+                let idx = move.toRow * size + move.toCol
+                guard !visited[idx] else { continue }
+                visited[idx] = true
+                queue.append((move.toRow, move.toCol, current.dist + 1))
+            }
+        }
+        return nil
+    }
+
+    static func hasEscapeRoute(position: Position) -> Bool {
+        shortestPathLength(position: position) != nil
+    }
+
     private static func findKing(_ position: Position) -> (row: Int, col: Int)? {
         for row in 0..<Position.boardSize {
             for col in 0..<Position.boardSize {

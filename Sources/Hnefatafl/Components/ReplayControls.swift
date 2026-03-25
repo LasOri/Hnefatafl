@@ -30,3 +30,22 @@ struct ReplayState: Equatable {
         currentStep = totalSteps
     }
 }
+
+struct ReplayControls: Equatable {
+    let currentMoveIndex: Int
+    let totalMoves: Int
+    let isPlaying: Bool
+
+    var canGoForward: Bool {
+        currentMoveIndex < totalMoves
+    }
+
+    var canGoBack: Bool {
+        currentMoveIndex > 0
+    }
+
+    var progress: Double {
+        guard totalMoves > 0 else { return 0.0 }
+        return Double(currentMoveIndex) / Double(totalMoves)
+    }
+}

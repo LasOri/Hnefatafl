@@ -20,4 +20,46 @@ struct PieceActivityScore {
         }
         return 0
     }
+
+    static func score(position: Position, player: Player) -> Int {
+        var total = 0
+        for row in 0..<Position.boardSize {
+            for col in 0..<Position.boardSize {
+                guard let piece = position.pieceAt(row: row, col: col) else { continue }
+                let belongs: Bool
+                switch piece {
+                case .attacker: belongs = player == .attacker
+                case .defender, .king: belongs = player == .defender
+                }
+                guard belongs else { continue }
+                total += position.legalMoves(forPieceAtRow: row, col: col).count
+            }
+        }
+        return total
+    }
+
+    static func mostActivePiece(position: Position, player: Player) -> (row: Int, col: Int)? {
+        var bestRow = -1
+        var bestCol = -1
+        var bestCount = -1
+        for row in 0..<Position.boardSize {
+            for col in 0..<Position.boardSize {
+                guard let piece = position.pieceAt(row: row, col: col) else { continue }
+                let belongs: Bool
+                switch piece {
+                case .attacker: belongs = player == .attacker
+                case .defender, .king: belongs = player == .defender
+                }
+                guard belongs else { continue }
+                let count = position.legalMoves(forPieceAtRow: row, col: col).count
+                if count > bestCount {
+                    bestCount = count
+                    bestRow = row
+                    bestCol = col
+                }
+            }
+        }
+        guard bestCount >= 0 else { return nil }
+        return (row: bestRow, col: bestCol)
+    }
 }
