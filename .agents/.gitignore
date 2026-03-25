@@ -1,0 +1,3 @@
+# Built agents - regenerate with npm run build
+*
+!.gitignore
