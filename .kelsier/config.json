@@ -1,0 +1,24 @@
+{
+  "language": "swift",
+  "test_framework": "swift-testing",
+  "test_command": "swift test",
+  "build_command": "swift build",
+  "source_dirs": ["Sources/Hnefatafl/"],
+  "test_dirs": ["Tests/HnefataflTests/"],
+  "file_patterns": {
+    "source": "*.swift",
+    "test": "*Tests.swift"
+  },
+  "dependencies": ["LINKER", "JavaScriptKit"],
+  "conventions": {
+    "testing": "import Testing, @Suite, @Test, #expect() — NEVER XCTest",
+    "ai_modules": "enum with static methods",
+    "component_modules": "struct: Equatable",
+    "ai_path": "Sources/Hnefatafl/AI/",
+    "components_path": "Sources/Hnefatafl/Components/",
+    "models_path": "Sources/Hnefatafl/Models/",
+    "engine_tests_path": "Tests/HnefataflTests/EngineTests/",
+    "component_tests_path": "Tests/HnefataflTests/ComponentTests/",
+    "state_tests_path": "Tests/HnefataflTests/StateTests/"
+  }
+}
