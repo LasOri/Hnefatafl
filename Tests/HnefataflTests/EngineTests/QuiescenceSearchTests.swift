@@ -1,69 +1,56 @@
 import Testing
 @testable import Hnefatafl
 
-@Suite("Quiescence Search Tests")
+@Suite("QuiescenceSearch Tests")
 struct QuiescenceSearchTests {
 
-    @Test("quiescence returns static eval for quiet position")
-    func quietPosition() {
-        let game = Game()
-        let score = QuiescenceSearch.search(game: game, alpha: Int.min + 1, beta: Int.max, player: .attacker, depth: 4)
-        let staticScore = EvaluationAI.evaluate(position: game.position, for: .attacker)
-        #expect(score == staticScore)
+    @Test("search returns an integer")
+    func searchReturnsInt() {
+        let position = Position.copenhagenStart()
+        let score = QuiescenceSearch.search(position: position, player: .attacker, alpha: -10000, beta: 10000)
+        #expect(score >= -10000)
+        #expect(score <= 10000)
     }
 
-    @Test("quiescence depth limits recursion")
-    func depthLimits() {
-        let game = Game()
-        let score = QuiescenceSearch.search(game: game, alpha: Int.min + 1, beta: Int.max, player: .attacker, depth: 0)
-        let staticScore = EvaluationAI.evaluate(position: game.position, for: .attacker)
-        #expect(score == staticScore)
+    @Test("stand pat when no captures available")
+    func standPatNoCaptures() {
+        var cells: [Piece?] = Array(repeating: nil, count: 121)
+        cells[0] = .attacker
+        cells[120] = .defender
+        let position = Position(cells: cells)
+        let score = QuiescenceSearch.search(position: position, player: .attacker, alpha: -10000, beta: 10000)
+        let expectedEval = position.attackerCount - position.defenderCount
+        #expect(score == expectedEval)
     }
 
-    @Test("capture moves are identified")
-    func captureMoves() {
-        let game = Game()
-        let captures = QuiescenceSearch.captureMoves(game: game)
+    @Test("find capture moves on starting position")
+    func findCaptureMoveStart() {
+        let position = Position.copenhagenStart()
+        let captures = QuiescenceSearch.findCaptureMoves(position: position, player: .attacker)
         #expect(captures.count >= 0)
     }
 
-    @Test("empty board has no capture moves")
-    func emptyBoardNoCaptures() {
-        let cells: [Piece?] = Array(repeating: nil, count: 121)
-        let position = Position(cells: cells)
-        let game = Game(position: position, currentPlayer: .attacker, moveHistory: [])
-        let captures = QuiescenceSearch.captureMoves(game: game)
-        #expect(captures.isEmpty)
+    @Test("empty board returns zero evaluation")
+    func emptyBoardReturnsZero() {
+        let position = Position(cells: Array(repeating: nil, count: 121))
+        let score = QuiescenceSearch.search(position: position, player: .attacker, alpha: -10000, beta: 10000)
+        #expect(score == 0)
     }
 
-    @Test("maxDepth constant")
-    func maxDepthConstant() {
-        #expect(QuiescenceSearch.maxDepth == 4)
+    @Test("search respects beta cutoff")
+    func respectsBetaCutoff() {
+        let position = Position.copenhagenStart()
+        let lowBeta = -100
+        let score = QuiescenceSearch.search(position: position, player: .attacker, alpha: -10000, beta: lowBeta)
+        #expect(score <= lowBeta)
     }
 
-    @Test("search on finished game returns terminal score")
-    func finishedGame() {
-        var cells: [Piece?] = Array(repeating: nil, count: 121)
-        cells[0] = .king
-        let position = Position(cells: cells)
-        let game = Game(position: position, currentPlayer: .defender, moveHistory: [])
-        let score = QuiescenceSearch.search(game: game, alpha: Int.min + 1, beta: Int.max, player: .defender, depth: 4)
-        #expect(score > 0)
-    }
-
-    @Test("alpha-beta pruning works in quiescence")
-    func alphaBetaPrunes() {
-        let game = Game()
-        let scoreWide = QuiescenceSearch.search(game: game, alpha: Int.min + 1, beta: Int.max, player: .attacker, depth: 2)
-        let scoreNarrow = QuiescenceSearch.search(game: game, alpha: scoreWide - 1, beta: scoreWide + 1, player: .attacker, depth: 2)
-        #expect(abs(scoreWide - scoreNarrow) <= 2 || scoreNarrow >= scoreWide - 1)
-    }
-
-    @Test("search returns integer score")
-    func returnsInt() {
-        let game = Game()
-        let score = QuiescenceSearch.search(game: game, alpha: Int.min + 1, beta: Int.max, player: .attacker, depth: 2)
-        #expect(score > Int.min + 1)
-        #expect(score < Int.max)
+    @Test("alpha-beta window narrows correctly")
+    func alphaBetaWindowNarrows() {
+        let position = Position.copenhagenStart()
+        let wideScore = QuiescenceSearch.search(position: position, player: .attacker, alpha: -10000, beta: 10000)
+        let narrowScore = QuiescenceSearch.search(position: position, player: .attacker, alpha: wideScore - 1, beta: wideScore + 1)
+        #expect(narrowScore >= wideScore - 1)
+        #expect(narrowScore <= wideScore + 1)
     }
 }

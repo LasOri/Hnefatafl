@@ -1,32 +1,31 @@
-import LINKER
+struct PieceCountData: Equatable {
+    let attackers: Int
+    let defenders: Int
+    let kingAlive: Bool
+    let advantage: Int
+}
 
-struct PieceCountDisplay {
-    static func render(count: PieceCount) -> [AnyNode] {
-        let attackerSpan = Element<AnyHTMLContext>(
-            tag: "span",
-            attributes: [
-                Attribute(name: "class", value: "piece-count piece-count-attacker"),
-                Attribute(name: "aria-label", value: "Attackers: \(count.attackers)")
-            ],
-            children: [AnyNode(Text("\(count.attackers)"))]
+enum PieceCountDisplay {
+    static func data(for position: Position) -> PieceCountData {
+        let hasKing = findKing(position: position)
+        let defCount = position.defenderCount
+        let atkCount = position.attackerCount
+        return PieceCountData(
+            attackers: atkCount,
+            defenders: defCount,
+            kingAlive: hasKing,
+            advantage: atkCount - defCount
         )
+    }
 
-        let defenderLabel = count.hasKing ? "\(count.defenders)+K" : "\(count.defenders)"
-        let defenderSpan = Element<AnyHTMLContext>(
-            tag: "span",
-            attributes: [
-                Attribute(name: "class", value: "piece-count piece-count-defender"),
-                Attribute(name: "aria-label", value: "Defenders: \(defenderLabel)")
-            ],
-            children: [AnyNode(Text("\(count.defenders)"))]
-        )
-
-        let container = Element<AnyHTMLContext>(
-            tag: "div",
-            attributes: [Attribute(name: "class", value: "piece-counts")],
-            children: [AnyNode(attackerSpan), AnyNode(defenderSpan)]
-        )
-
-        return [AnyNode(container)]
+    private static func findKing(position: Position) -> Bool {
+        for row in 0..<Position.boardSize {
+            for col in 0..<Position.boardSize {
+                if position.pieceAt(row: row, col: col) == .king {
+                    return true
+                }
+            }
+        }
+        return false
     }
 }

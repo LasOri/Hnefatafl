@@ -1,37 +1,44 @@
-struct QuiescenceSearch {
-    static let maxDepth = 4
-
-    static func search(game: Game, alpha: Int, beta: Int, player: Player, depth: Int) -> Int {
-        let standPat = EvaluationAI.evaluate(position: game.position, for: player)
-
-        if depth <= 0 || game.status != .inProgress {
-            return standPat
-        }
-
-        var alpha = alpha
+enum QuiescenceSearch {
+    static func search(position: Position, player: Player, alpha: Int, beta: Int) -> Int {
+        let standPat = staticEval(position: position, player: player)
         if standPat >= beta { return beta }
-        if standPat > alpha { alpha = standPat }
+        var currentAlpha = max(alpha, standPat)
 
-        let captures = captureMoves(game: game)
-        if captures.isEmpty { return standPat }
-
-        for move in captures {
-            let newGame = game.makeMove(move)
-            let score = -search(game: newGame, alpha: -beta, beta: -alpha, player: player, depth: depth - 1)
+        let captureMoves = findCaptureMoves(position: position, player: player)
+        for move in captureMoves {
+            let newPos = position.applyMove(move)
+            let opponent: Player = player == .attacker ? .defender : .attacker
+            let score = -search(position: newPos, player: opponent, alpha: -beta, beta: -currentAlpha)
             if score >= beta { return beta }
-            if score > alpha { alpha = score }
+            currentAlpha = max(currentAlpha, score)
         }
-
-        return alpha
+        return currentAlpha
     }
 
-    static func captureMoves(game: Game) -> [Move] {
-        let moves = game.position.allLegalMoves(for: game.currentPlayer)
-        return moves.filter { move in
-            let newGame = game.makeMove(move)
-            let beforeCount = game.position.cells.compactMap { $0 }.count
-            let afterCount = newGame.position.cells.compactMap { $0 }.count
+    static func findCaptureMoves(position: Position, player: Player) -> [Move] {
+        let allMoves = position.allLegalMoves(for: player)
+        return allMoves.filter { move in
+            let before = position
+            let after = position.applyMove(move)
+            let opponent: Player = player == .attacker ? .defender : .attacker
+            let beforeCount: Int
+            let afterCount: Int
+            switch opponent {
+            case .attacker:
+                beforeCount = before.attackerCount
+                afterCount = after.attackerCount
+            case .defender:
+                beforeCount = before.defenderCount
+                afterCount = after.defenderCount
+            }
             return afterCount < beforeCount
+        }
+    }
+
+    private static func staticEval(position: Position, player: Player) -> Int {
+        switch player {
+        case .attacker: return position.attackerCount - position.defenderCount
+        case .defender: return position.defenderCount - position.attackerCount
         }
     }
 }

@@ -1,34 +1,35 @@
-struct MoveSorter {
+enum MoveSorter {
     static func sort(moves: [Move], position: Position, player: Player) -> [Move] {
-        moves.sorted { a, b in
-            score(move: a, position: position, player: player) >
-            score(move: b, position: position, player: player)
+        let scored = moves.map { move -> (Move, Int) in
+            let score = heuristicScore(move: move, position: position, player: player)
+            return (move, score)
         }
+        return scored.sorted { $0.1 > $1.1 }.map(\.0)
     }
 
-    static func score(move: Move, position: Position, player: Player) -> Int {
-        var s = 0
-        let size = Position.boardSize
-        let center = size / 2
+    static func heuristicScore(move: Move, position: Position, player: Player) -> Int {
+        var score = 0
+        let newPos = position.applyMove(move)
+        let opponent: Player = player == .attacker ? .defender : .attacker
 
-        let newPosition = position.applyMove(move)
-        let capturedBefore = position.cells.compactMap({ $0 }).count
-        let capturedAfter = newPosition.cells.compactMap({ $0 }).count
-        if capturedAfter < capturedBefore {
-            s += 100
+        let beforeCount: Int
+        let afterCount: Int
+        switch opponent {
+        case .attacker:
+            beforeCount = position.attackerCount
+            afterCount = newPos.attackerCount
+        case .defender:
+            beforeCount = position.defenderCount
+            afterCount = newPos.defenderCount
         }
 
-        let isCorner = (move.toRow == 0 || move.toRow == size - 1) &&
-                       (move.toCol == 0 || move.toCol == size - 1)
-        if isCorner {
-            if position.pieceAt(row: move.fromRow, col: move.fromCol) == .king {
-                s += 1000
-            }
+        if afterCount < beforeCount {
+            score += 1000
         }
 
-        let distToCenter = abs(move.toRow - center) + abs(move.toCol - center)
-        s += max(0, 10 - distToCenter)
+        let centerDist = abs(move.toRow - 5) + abs(move.toCol - 5)
+        score += max(0, 10 - centerDist)
 
-        return s
+        return score
     }
 }

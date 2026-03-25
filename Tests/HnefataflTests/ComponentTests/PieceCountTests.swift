@@ -38,7 +38,7 @@ struct PieceCountTests {
     func rendersAttacker() {
         let position = Position.copenhagenStart()
         let count = PieceCounter.count(position: position)
-        let nodes = PieceCountDisplay.render(count: count)
+        let nodes = PieceCountRenderer.render(count: count)
         let rendered = render(nodes)
         let text = rendered.findByText("24")
         #expect(text != nil)
@@ -48,7 +48,7 @@ struct PieceCountTests {
     func rendersDefender() {
         let position = Position.copenhagenStart()
         let count = PieceCounter.count(position: position)
-        let nodes = PieceCountDisplay.render(count: count)
+        let nodes = PieceCountRenderer.render(count: count)
         let rendered = render(nodes)
         let text = rendered.findByText("12")
         #expect(text != nil)
@@ -57,7 +57,7 @@ struct PieceCountTests {
     @Test("PieceCountDisplay has aria labels")
     func ariaLabels() {
         let count = PieceCount(attackers: 20, defenders: 10, hasKing: true)
-        let nodes = PieceCountDisplay.render(count: count)
+        let nodes = PieceCountRenderer.render(count: count)
         let rendered = render(nodes)
         let labeled = rendered.findAll(tag: "span").first(where: { $0.attr("aria-label") != nil })
         #expect(labeled != nil)

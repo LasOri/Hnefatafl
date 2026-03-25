@@ -1,4 +1,4 @@
-struct RepetitionDetector {
+struct RepetitionChecker {
     static let threefoldThreshold = 3
 
     static func count(position: Position, in game: Game) -> Int {
