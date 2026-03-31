@@ -1,5 +1,4 @@
 import Testing
-import Foundation
 @testable import Hnefatafl
 
 @Suite("Game Persistence Tests")
@@ -71,16 +70,15 @@ struct GamePersistenceTests {
         #expect(restored.aiDifficulty == .hard)
     }
 
-    @Test("SaveState is Codable — round trips through JSON")
-    func codableRoundTrip() {
+    @Test("SaveState round trips through JSON")
+    func jsonRoundTrip() {
         let state = GameState()
         let save = GameSerializer.serialize(state)
-        let encoder = JSONEncoder()
-        let data = try! encoder.encode(save)
-        let decoder = JSONDecoder()
-        let decoded = try! decoder.decode(SaveState.self, from: data)
-        #expect(decoded.cells.count == save.cells.count)
-        #expect(decoded.currentPlayer == save.currentPlayer)
+        let jsonString = save.toJsonString()
+        let decoded = SaveState.fromJsonString(jsonString)
+        #expect(decoded != nil)
+        #expect(decoded!.cells.count == save.cells.count)
+        #expect(decoded!.currentPlayer == save.currentPlayer)
     }
 
     @Test("deserialize returns nil for invalid data")

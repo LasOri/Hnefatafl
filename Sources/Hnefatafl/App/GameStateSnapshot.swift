@@ -1,4 +1,4 @@
-import Foundation
+import LINKER
 
 struct GameStateSnapshot: Equatable {
     let timestamp: Double
@@ -8,7 +8,7 @@ struct GameStateSnapshot: Equatable {
 
     static func capture(from state: GameState, at time: Double? = nil) -> GameStateSnapshot {
         GameStateSnapshot(
-            timestamp: time ?? Date().timeIntervalSince1970,
+            timestamp: time ?? currentTimestamp(),
             moveNumber: state.game.moveHistory.count,
             positionData: PositionSerializer.serialize(position: state.game.position),
             currentPlayer: state.game.currentPlayer

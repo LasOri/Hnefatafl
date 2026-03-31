@@ -1,4 +1,4 @@
-import Foundation
+import LINKER
 
 struct TimerConfig: Equatable {
     let secondsPerSide: Int
@@ -50,6 +50,6 @@ struct GameTimer: Equatable {
     static func formatTime(seconds: Int) -> String {
         let mins = seconds / 60
         let secs = seconds % 60
-        return "\(mins):\(String(format: "%02d", secs))"
+        return "\(mins):\(zeroPad(secs, width: 2))"
     }
 }

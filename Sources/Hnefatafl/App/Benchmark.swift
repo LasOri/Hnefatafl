@@ -1,4 +1,4 @@
-import Foundation
+import LINKER
 
 struct BenchmarkResult<T> {
     let label: String
@@ -8,9 +8,9 @@ struct BenchmarkResult<T> {
 
 struct Benchmark {
     static func measure<T>(label: String, block: () -> T) -> BenchmarkResult<T> {
-        let start = Date()
+        let start = currentTimestamp()
         let value = block()
-        let duration = Date().timeIntervalSince(start)
+        let duration = currentTimestamp() - start
         return BenchmarkResult(label: label, duration: duration, value: value)
     }
 }

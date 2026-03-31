@@ -1,4 +1,16 @@
-import Foundation
+
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
+
+struct EvalBarData: Equatable {
+    let score: Int
+    let depth: Int
+    let label: String
+    let percentage: Int
+}
 
 struct EvalBar {
     static func normalize(score: Int) -> Double {
@@ -18,5 +30,13 @@ struct EvalBar {
 
     static func evaluate(game: Game) -> Int {
         EvaluationAI.evaluate(position: game.position, for: .attacker)
+    }
+
+    static func data(evalScore: Int?, searchDepth: Int?) -> EvalBarData? {
+        guard let score = evalScore, let depth = searchDepth else { return nil }
+        let normalized = normalize(score: score)
+        let pct = percentage(normalizedValue: normalized)
+        let lbl = label(normalizedValue: normalized)
+        return EvalBarData(score: score, depth: depth, label: "\(lbl) (d\(depth))", percentage: pct)
     }
 }

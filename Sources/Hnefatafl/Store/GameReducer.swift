@@ -54,20 +54,30 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .toggleCoordinates:
         return reduceToggleCoordinates(state: state)
+
+    case .cyclePersonality:
+        return reduceCyclePersonality(state: state)
+
+    case .cycleVariant:
+        return reduceCycleVariant(state: state)
     }
 }
 
 private func reduceNewGame(state: GameState) -> GameState {
-    GameState(
-        game: Game(),
+    let startPos = state.selectedVariant.startPosition
+    let newGame = Game(position: startPos, currentPlayer: .attacker, moveHistory: [], positionHistory: [startPos])
+    return GameState(
+        game: newGame,
         selectedSquare: nil,
         legalMovesForSelected: [],
         muted: state.muted,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant
     )
 }
 
@@ -84,6 +94,7 @@ private func reduceToggleMute(state: GameState) -> GameState {
         muted: !state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -124,6 +135,7 @@ private func reduceFlipBoard(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: !state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -144,6 +156,7 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             muted: state.muted,
             captureHistory: state.captureHistory,
             aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
             replayStep: state.replayStep,
@@ -172,6 +185,7 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -219,6 +233,7 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         muted: state.muted,
         captureHistory: newCaptureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         announcement: humanAnnouncement,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
@@ -226,7 +241,8 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         showCoordinates: state.showCoordinates
     )
 
-    if let aiMove = AIGameLoop.aiMove(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty) {
+    if let aiMove = EnhancedAIGameLoop.selectMove(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty, personality: state.aiPersonality) {
+        let aiStats = EnhancedAIGameLoop.selectMoveWithStats(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty, personality: state.aiPersonality)
         let aiGame = result.game.makeMove(aiMove)
         let (aiCapturedAttackers, aiCapturedDefenders) = countCaptures(
             before: result.game.position, after: aiGame.position
@@ -261,11 +277,14 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             muted: state.muted,
             captureHistory: aiCaptureHistory,
             aiDifficulty: state.aiDifficulty,
+            aiPersonality: state.aiPersonality,
             announcement: aiAnnouncement,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
             replayStep: state.replayStep,
-            showCoordinates: state.showCoordinates
+            showCoordinates: state.showCoordinates,
+            aiEvalScore: aiStats.evalScore,
+            aiSearchDepth: aiStats.searchDepth
         )
     }
 
@@ -339,6 +358,7 @@ private func reduceUndo(state: GameState) -> GameState {
             muted: state.muted,
             captureHistory: newCaptureHistory,
             aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
             replayStep: state.replayStep,
@@ -359,6 +379,7 @@ private func reduceUndo(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: newCaptureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -391,6 +412,7 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -411,6 +433,7 @@ private func reduceEscape(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -438,6 +461,7 @@ private func reduceToggleAI(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -458,6 +482,7 @@ private func reduceToggleRules(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: !state.showRules,
         replayStep: state.replayStep,
@@ -478,6 +503,7 @@ private func reduceEnterReplay(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: max(0, lastStep),
@@ -497,6 +523,7 @@ private func reduceExitReplay(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: nil,
@@ -519,6 +546,7 @@ private func reduceReplayForward(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: next,
@@ -540,6 +568,7 @@ private func reduceReplayBack(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: prev,
@@ -548,7 +577,7 @@ private func reduceReplayBack(state: GameState) -> GameState {
 }
 
 private func reduceRequestHint(state: GameState) -> GameState {
-    let hint = HintEngine.bestMove(for: state.game)
+    let hint = HintEngine.bestMove(for: state.game, personality: state.aiPersonality)
     return GameState(
         game: state.game,
         selectedSquare: state.selectedSquare,
@@ -561,6 +590,7 @@ private func reduceRequestHint(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
@@ -582,9 +612,54 @@ private func reduceToggleCoordinates(state: GameState) -> GameState {
         muted: state.muted,
         captureHistory: state.captureHistory,
         aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
         showCoordinates: !state.showCoordinates
+    )
+}
+
+private func reduceCyclePersonality(state: GameState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        pendingSoundEffect: .move,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality.next,
+        announcement: "AI Personality: \(state.aiPersonality.next.name)",
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates
+    )
+}
+
+private func reduceCycleVariant(state: GameState) -> GameState {
+    let newVariant = state.selectedVariant.next
+    let startPos = newVariant.startPosition
+    let newGame = Game(position: startPos, currentPlayer: .attacker, moveHistory: [], positionHistory: [startPos])
+    return GameState(
+        game: newGame,
+        selectedSquare: nil,
+        legalMovesForSelected: [],
+        focusedSquare: (row: 0, col: 0),
+        aiMode: state.aiMode,
+        muted: state.muted,
+        aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
+        announcement: "Variant: \(newVariant.label)",
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        showCoordinates: state.showCoordinates,
+        selectedVariant: newVariant
     )
 }

@@ -1,4 +1,5 @@
 import Testing
+import LINKER
 @testable import Hnefatafl
 
 @Suite("MatchHistorySerializer Tests")
@@ -24,28 +25,28 @@ struct MatchHistorySerializerTests {
     func serializeAttackerWin() {
         let record = MatchRecord(winner: .attacker, moveCount: 42, timestamp: 1000)
         let serialized = MatchHistorySerializer.serializeRecord(record)
-        #expect(serialized.winner == "attacker")
-        #expect(serialized.moveCount == 42)
-        #expect(serialized.timestamp == 1000)
+        #expect(serialized["winner"]?.stringValue == "attacker")
+        #expect(serialized["moveCount"]?.intValue == 42)
+        #expect(serialized["timestamp"]?.doubleValue == 1000)
     }
 
     @Test("serialize record with defender winner")
     func serializeDefenderWin() {
         let record = MatchRecord(winner: .defender, moveCount: 30, timestamp: 2000)
         let serialized = MatchHistorySerializer.serializeRecord(record)
-        #expect(serialized.winner == "defender")
+        #expect(serialized["winner"]?.stringValue == "defender")
     }
 
     @Test("serialize record with draw")
     func serializeDraw() {
         let record = MatchRecord(winner: nil, moveCount: 200, timestamp: 3000)
         let serialized = MatchHistorySerializer.serializeRecord(record)
-        #expect(serialized.winner == "draw")
+        #expect(serialized["winner"]?.stringValue == "draw")
     }
 
     @Test("deserialize record from serialized")
     func deserializeRecord() {
-        let serialized = SerializedMatchRecord(winner: "attacker", moveCount: 42, timestamp: 1000)
+        let serialized = Json.object(["winner": .string("attacker"), "moveCount": .int(42), "timestamp": .double(1000)])
         let record = MatchHistorySerializer.deserializeRecord(serialized)
         #expect(record != nil)
         #expect(record?.winner == .attacker)
@@ -55,7 +56,7 @@ struct MatchHistorySerializerTests {
 
     @Test("deserialize draw record")
     func deserializeDrawRecord() {
-        let serialized = SerializedMatchRecord(winner: "draw", moveCount: 200, timestamp: 3000)
+        let serialized = Json.object(["winner": .string("draw"), "moveCount": .int(200), "timestamp": .double(3000)])
         let record = MatchHistorySerializer.deserializeRecord(serialized)
         #expect(record?.winner == nil)
     }
@@ -109,7 +110,7 @@ struct MatchHistorySerializerTests {
 
     @Test("deserialize invalid winner returns nil")
     func invalidWinner() {
-        let serialized = SerializedMatchRecord(winner: "unknown", moveCount: 10, timestamp: 0)
+        let serialized = Json.object(["winner": .string("unknown"), "moveCount": .int(10), "timestamp": .double(0)])
         let record = MatchHistorySerializer.deserializeRecord(serialized)
         #expect(record == nil)
     }

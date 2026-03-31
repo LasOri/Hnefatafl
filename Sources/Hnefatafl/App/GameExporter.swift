@@ -1,4 +1,4 @@
-import Foundation
+import LINKER
 
 struct GameExporter {
     static func export(game: Game) -> String {
@@ -6,9 +6,8 @@ struct GameExporter {
         lines.append("[Game \"Hnefatafl\"]")
         lines.append("[Variant \"Copenhagen\"]")
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy.MM.dd"
-        lines.append("[Date \"\(formatter.string(from: Date()))\"]")
+        let dateStr = formatPGNDate(from: currentTimestamp())
+        lines.append("[Date \"\(dateStr)\"]")
 
         let result = resultString(for: game.status)
         lines.append("[Result \"\(result)\"]")
@@ -43,19 +42,34 @@ struct GameExporter {
         case .inProgress: return "*"
         }
     }
+
+    static func formatPGNDate(from timestamp: Double) -> String {
+        let totalSeconds = Int(timestamp)
+        let z = totalSeconds / 86400 + 719468
+        let era = (z >= 0 ? z : z - 146096) / 146097
+        let doe = z - era * 146097
+        let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+        let y = yoe + era * 400
+        let doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
+        let mp = (5 * doy + 2) / 153
+        let d = doy - (153 * mp + 2) / 5 + 1
+        let m = mp + (mp < 10 ? 3 : -9)
+        let year = y + (m <= 2 ? 1 : 0)
+        return "\(year).\(zeroPad(m, width: 2)).\(zeroPad(d, width: 2))"
+    }
 }
 
 struct GameImporter {
     static func parseHeaders(_ pgn: String) -> [String: String] {
         var headers: [String: String] = [:]
         for line in pgn.split(separator: "\n") {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            let trimmed = line.trimmingWhitespace()
             if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
                 let inner = String(trimmed.dropFirst().dropLast())
                 if let spaceIdx = inner.firstIndex(of: " ") {
                     let key = String(inner[inner.startIndex..<spaceIdx])
-                    var value = String(inner[inner.index(after: spaceIdx)...])
-                    value = value.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+                    let value = String(inner[inner.index(after: spaceIdx)...])
+                        .filter { $0 != "\"" }
                     headers[key] = value
                 }
             }
@@ -68,7 +82,7 @@ struct GameImporter {
         var pastHeaders = false
         var moveLines: [String] = []
         for line in lines {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            let trimmed = line.trimmingWhitespace()
             if trimmed.isEmpty && !pastHeaders {
                 pastHeaders = true
                 continue

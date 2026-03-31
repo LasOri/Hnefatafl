@@ -1,4 +1,9 @@
-import Foundation
+
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 enum DispersionIndex {
     static func index(position: Position, player: Player) -> Double {

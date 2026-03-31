@@ -1,57 +1,49 @@
-import Foundation
-
-struct SerializedMatchRecord: Codable, Equatable {
-    let winner: String
-    let moveCount: Int
-    let timestamp: Double
-}
-
-struct SerializedMatchHistory: Codable, Equatable {
-    let records: [SerializedMatchRecord]
-}
+import LINKER
 
 enum MatchHistorySerializer {
-    static func serializeRecord(_ record: MatchRecord) -> SerializedMatchRecord {
+    static func serializeRecord(_ record: MatchRecord) -> Json {
         let winner: String
         switch record.winner {
         case .attacker: winner = "attacker"
         case .defender: winner = "defender"
         case .none: winner = "draw"
         }
-        return SerializedMatchRecord(winner: winner, moveCount: record.moveCount, timestamp: record.timestamp)
+        return .object([
+            "winner": .string(winner),
+            "moveCount": .int(record.moveCount),
+            "timestamp": .double(record.timestamp)
+        ])
     }
 
-    static func deserializeRecord(_ serialized: SerializedMatchRecord) -> MatchRecord? {
-        let winner: Player?
-        switch serialized.winner {
-        case "attacker": winner = .attacker
-        case "defender": winner = .defender
-        case "draw": winner = nil
+    static func deserializeRecord(_ json: Json) -> MatchRecord? {
+        guard let winner = json["winner"]?.stringValue,
+              let moveCount = json["moveCount"]?.intValue,
+              let timestamp = json["timestamp"]?.doubleValue else {
+            return nil
+        }
+        let player: Player?
+        switch winner {
+        case "attacker": player = .attacker
+        case "defender": player = .defender
+        case "draw": player = nil
         default: return nil
         }
-        return MatchRecord(winner: winner, moveCount: serialized.moveCount, timestamp: serialized.timestamp)
+        return MatchRecord(winner: player, moveCount: moveCount, timestamp: timestamp)
     }
 
     static func serialize(_ history: MatchHistory) -> String {
-        let serialized = SerializedMatchHistory(
-            records: history.records.map { serializeRecord($0) }
-        )
-        guard let data = try? JSONEncoder().encode(serialized),
-              let json = String(data: data, encoding: .utf8) else {
-            return "{\"records\":[]}"
-        }
-        return json
+        let records = Json.array(history.records.map { serializeRecord($0) })
+        let json = Json.object(["records": records])
+        return json.toJsonString()
     }
 
-    static func deserialize(_ json: String) -> MatchHistory? {
-        guard let data = json.data(using: .utf8),
-              let serialized = try? JSONDecoder().decode(SerializedMatchHistory.self, from: data) else {
-            return nil
-        }
+    static func deserialize(_ jsonString: String) -> MatchHistory? {
+        let json = Json.parse(jsonString)
+        guard let records = json["records"]?.arrayValue else { return nil }
 
         var history = MatchHistory()
-        for record in serialized.records {
-            guard let decoded = deserializeRecord(record) else { return nil }
+        for recordJson in records {
+            guard let decoded = deserializeRecord(recordJson) else { return nil }
             history.record(winner: decoded.winner, moveCount: decoded.moveCount, at: decoded.timestamp)
         }
         return history

@@ -1,11 +1,50 @@
-import Foundation
+import LINKER
 
-struct SaveState: Codable, Equatable {
+struct SaveState: Equatable {
     let cells: [String?]
     let currentPlayer: String
     let moveHistory: [[Int]]
     let muted: Bool
     let difficulty: String
+
+    func toJson() -> Json {
+        let cellsJson = Json.array(cells.map { cell in
+            cell.map { Json.string($0) } ?? Json.null
+        })
+        let movesJson = Json.array(moveHistory.map { coords in
+            Json.array(coords.map { Json.int($0) })
+        })
+        return .object([
+            "cells": cellsJson,
+            "currentPlayer": .string(currentPlayer),
+            "moveHistory": movesJson,
+            "muted": .bool(muted),
+            "difficulty": .string(difficulty)
+        ])
+    }
+
+    static func fromJson(_ json: Json) -> SaveState? {
+        guard let cellsArr = json["cells"]?.arrayValue,
+              let currentPlayer = json["currentPlayer"]?.stringValue,
+              let movesArr = json["moveHistory"]?.arrayValue,
+              let muted = json["muted"]?.boolValue,
+              let difficulty = json["difficulty"]?.stringValue else {
+            return nil
+        }
+        let cells: [String?] = cellsArr.map { $0.stringValue }
+        let moveHistory: [[Int]] = movesArr.compactMap { move in
+            move.arrayValue?.compactMap { $0.intValue }
+        }
+        return SaveState(cells: cells, currentPlayer: currentPlayer, moveHistory: moveHistory, muted: muted, difficulty: difficulty)
+    }
+
+    func toJsonString() -> String {
+        toJson().toJsonString()
+    }
+
+    static func fromJsonString(_ jsonString: String) -> SaveState? {
+        fromJson(Json.parse(jsonString))
+    }
 }
 
 struct GameSerializer {

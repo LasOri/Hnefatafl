@@ -1,4 +1,10 @@
-import Foundation
+import LINKER
+
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 struct SpringConfig: Equatable {
     let stiffness: Double
@@ -32,7 +38,7 @@ struct SpringConfig: Equatable {
 
     func cssTransition(property: String) -> String {
         let duration = settlingTime
-        return "\(property) \(String(format: "%.2f", duration))s ease-out"
+        return "\(property) \(formatDecimal(duration, decimals: 2))s ease-out"
     }
 
     static let gentle = SpringConfig(stiffness: 120, damping: 14)
