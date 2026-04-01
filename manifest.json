@@ -1,0 +1,16 @@
+{
+  "name": "Hnefatafl — Viking Board Game",
+  "short_name": "Hnefatafl",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#5c3a1e",
+  "background_color": "#1a1207",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hnefatafl — Viking Board Game</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/svg+xml" href="/icons/icon.svg">
+    <meta name="theme-color" content="#5c3a1e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="preload" href="Hnefatafl.wasm" as="fetch" crossorigin>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #2d1b0e;
+            color: #e8dcc8;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 1rem;
+        }
+        #loading h1 { font-size: 1.5rem; letter-spacing: 0.1em; color: #c8a55a; }
+        .loading-progress { width: 200px; height: 4px; background: #3d2a18; border-radius: 2px; overflow: hidden; }
+        .loading-progress__bar { height: 100%; background: #c8a55a; width: 0%; transition: width 0.2s; }
+        .loading-progress__bar--indeterminate { width: 30% !important; animation: indeterminate 1.5s infinite; }
+        @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+        #load-progress-text { font-size: 0.75rem; color: #8a8580; }
+        #load-error { display: none; color: #a83232; margin-top: 1rem; text-align: center; }
+        #load-error button { margin-top: 0.5rem; padding: 0.4rem 1rem; background: #c8a55a; color: #1a1410; border: none; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div id="loading">
+            <h1>Hnefatafl</h1>
+            <div class="loading-progress">
+                <div id="load-progress-bar" class="loading-progress__bar"></div>
+            </div>
+            <div id="load-progress-text">Loading...</div>
+            <div id="load-error">
+                <div>Failed to load. Check your connection.</div>
+                <button onclick="location.reload()">Retry</button>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import { startWasmApp } from './main.js';
+        try {
+            await startWasmApp();
+        } catch (e) {
+            console.error('App failed to start:', e);
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('load-error');
+            if (loading) loading.querySelector('h1').textContent = 'Loading failed';
+            if (error) error.style.display = 'block';
+        }
+    </script>
+    <script type="module">
+        // Iroh P2P WASM module loader (optional — game works without it)
+        try {
+            const { default: init, GameNode } = await import('/iroh-wasm/linker_iroh.js');
+            await init();
+            window.__LINKER_IROH = { GameNode };
+        } catch (e) {
+            // P2P module not available — local/AI play still works
+            console.debug('Iroh P2P module not loaded:', e.message);
+        }
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>

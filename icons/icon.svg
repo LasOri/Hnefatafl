@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#2d1b0e"/>
+  <rect x="56" y="56" width="400" height="400" rx="8" fill="#3d2a18" stroke="#c8a55a" stroke-width="4"/>
+  <!-- Simplified king piece -->
+  <circle cx="256" cy="280" r="100" fill="#e8dcc8" stroke="#c8a55a" stroke-width="6"/>
+  <path d="M180 200 L210 140 L230 170 L256 120 L282 170 L302 140 L332 200 L320 216 L192 216 Z" fill="#c8a55a" stroke="#a07830" stroke-width="3"/>
+  <circle cx="210" cy="148" r="8" fill="#8b2020"/>
+  <circle cx="256" cy="128" r="10" fill="#8b2020"/>
+  <circle cx="302" cy="148" r="8" fill="#8b2020"/>
+  <circle cx="256" cy="280" r="28" fill="#c8a55a" stroke="#a07830" stroke-width="3"/>
+  <circle cx="256" cy="280" r="14" fill="#daa520"/>
+</svg>
