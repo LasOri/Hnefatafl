@@ -23,6 +23,7 @@ struct GameState: Equatable {
     let selectedVariant: SelectedVariant
     let aiEvalScore: Int?
     let aiSearchDepth: Int?
+    let p2pSession: P2PSessionState?
 
     init() {
         game = Game()
@@ -49,6 +50,7 @@ struct GameState: Equatable {
         selectedVariant = .copenhagen
         aiEvalScore = nil
         aiSearchDepth = nil
+        p2pSession = nil
     }
 
     init(
@@ -75,7 +77,8 @@ struct GameState: Equatable {
         showCoordinates: Bool = true,
         selectedVariant: SelectedVariant = .copenhagen,
         aiEvalScore: Int? = nil,
-        aiSearchDepth: Int? = nil
+        aiSearchDepth: Int? = nil,
+        p2pSession: P2PSessionState? = nil
     ) {
         self.game = game
         self.selectedSquare = selectedSquare
@@ -101,6 +104,7 @@ struct GameState: Equatable {
         self.selectedVariant = selectedVariant
         self.aiEvalScore = aiEvalScore
         self.aiSearchDepth = aiSearchDepth
+        self.p2pSession = p2pSession
     }
 
     static func == (lhs: GameState, rhs: GameState) -> Bool {
@@ -127,6 +131,7 @@ struct GameState: Equatable {
         lhs.showCoordinates == rhs.showCoordinates &&
         lhs.selectedVariant == rhs.selectedVariant &&
         lhs.aiEvalScore == rhs.aiEvalScore &&
-        lhs.aiSearchDepth == rhs.aiSearchDepth
+        lhs.aiSearchDepth == rhs.aiSearchDepth &&
+        lhs.p2pSession == rhs.p2pSession
     }
 }
