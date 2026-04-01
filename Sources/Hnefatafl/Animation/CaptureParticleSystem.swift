@@ -3,6 +3,8 @@
 import Darwin
 #elseif canImport(Glibc)
 import Glibc
+#elseif canImport(WASILibc)
+import WASILibc
 #endif
 
 struct CaptureParticle: Equatable {
