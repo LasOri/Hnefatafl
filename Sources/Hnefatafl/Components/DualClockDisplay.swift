@@ -1,3 +1,5 @@
+import LINKER
+
 struct DualClockDisplay: Equatable {
     let attackerTime: Double
     let defenderTime: Double
@@ -18,6 +20,6 @@ struct DualClockDisplay: Equatable {
     private static func formatTime(_ seconds: Double) -> String {
         let mins = Int(seconds) / 60
         let secs = Int(seconds) % 60
-        return String(format: "%d:%02d", mins, secs)
+        return "\(mins):\(zeroPad(secs, width: 2))"
     }
 }

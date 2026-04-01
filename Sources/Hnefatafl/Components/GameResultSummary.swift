@@ -1,3 +1,5 @@
+import LINKER
+
 struct ResultSummaryData: Equatable {
     let result: String
     let moveCount: Int
@@ -16,6 +18,6 @@ enum GameResultSummary {
         case .inProgress: winner = nil; result = "In Progress"
         }
         let mins = seconds / 60, secs = seconds % 60
-        return ResultSummaryData(result: result, moveCount: moveCount, duration: "\(mins):\(String(format: "%02d", secs))", winner: winner)
+        return ResultSummaryData(result: result, moveCount: moveCount, duration: "\(mins):\(zeroPad(secs, width: 2))", winner: winner)
     }
 }

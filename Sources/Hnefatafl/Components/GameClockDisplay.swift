@@ -1,3 +1,5 @@
+import LINKER
+
 struct GameClockDisplay {
     static func format(seconds: Int) -> String {
         let hours = seconds / 3600
@@ -5,9 +7,9 @@ struct GameClockDisplay {
         let secs = seconds % 60
 
         if hours > 0 {
-            return "\(hours):\(String(format: "%02d", mins)):\(String(format: "%02d", secs))"
+            return "\(hours):\(zeroPad(mins, width: 2)):\(zeroPad(secs, width: 2))"
         }
-        return "\(mins):\(String(format: "%02d", secs))"
+        return "\(mins):\(zeroPad(secs, width: 2))"
     }
 
     static func isLowTime(seconds: Int, threshold: Int = 60) -> Bool {

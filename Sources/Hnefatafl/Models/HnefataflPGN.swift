@@ -1,3 +1,5 @@
+import LINKER
+
 struct HnefataflPGN: Equatable {
     let headers: [String: String]
     let moves: [String]
@@ -37,20 +39,20 @@ struct HnefataflPGN: Equatable {
     }
 
     static func parse(_ text: String) -> HnefataflPGN? {
-        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        guard !text.trimmingWhitespace().isEmpty else { return nil }
 
         var headers: [String: String] = [:]
         var moveText = ""
         var inMoves = false
 
         for line in text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init) {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            let trimmed = line.trimmingWhitespace()
             if trimmed.hasPrefix("[") && trimmed.hasSuffix("]") {
                 let inner = String(trimmed.dropFirst().dropLast())
                 if let spaceIndex = inner.firstIndex(of: " ") {
                     let key = String(inner[inner.startIndex..<spaceIndex])
                     var value = String(inner[inner.index(after: spaceIndex)...])
-                    value = value.trimmingCharacters(in: .whitespaces)
+                    value = value.trimmingWhitespace()
                     if value.hasPrefix("\"") && value.hasSuffix("\"") {
                         value = String(value.dropFirst().dropLast())
                     }
@@ -81,11 +83,5 @@ struct HnefataflPGN: Equatable {
         case .draw: return "1/2-1/2"
         case .inProgress: return "*"
         }
-    }
-}
-
-private extension Character {
-    var isWhitespaceOrNewline: Bool {
-        self == " " || self == "\t" || self == "\n" || self == "\r"
     }
 }

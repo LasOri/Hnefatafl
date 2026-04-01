@@ -1,3 +1,5 @@
+import LINKER
+
 struct SaveData: Equatable {
     let positionString: String
     let moveCount: Int
@@ -33,18 +35,18 @@ struct SaveEncoder {
     }
 
     static func decode(_ json: String) -> SaveData? {
-        let trimmed = json.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmed = json.trimmingWhitespace()
         guard trimmed.hasPrefix("{") && trimmed.hasSuffix("}") else { return nil }
 
         func extractString(_ key: String) -> String? {
-            guard let range = trimmed.range(of: "\"\(key)\":\"") else { return nil }
+            guard let range = trimmed.findRange(of: "\"\(key)\":\"") else { return nil }
             let start = range.upperBound
             guard let end = trimmed[start...].firstIndex(of: "\"") else { return nil }
             return String(trimmed[start..<end])
         }
 
         func extractInt(_ key: String) -> Int? {
-            guard let range = trimmed.range(of: "\"\(key)\":") else { return nil }
+            guard let range = trimmed.findRange(of: "\"\(key)\":") else { return nil }
             let start = range.upperBound
             var numStr = ""
             for char in trimmed[start...] {
@@ -55,7 +57,7 @@ struct SaveEncoder {
         }
 
         func extractBool(_ key: String) -> Bool? {
-            guard let range = trimmed.range(of: "\"\(key)\":") else { return nil }
+            guard let range = trimmed.findRange(of: "\"\(key)\":") else { return nil }
             let start = range.upperBound
             let rest = String(trimmed[start...])
             if rest.hasPrefix("true") { return true }

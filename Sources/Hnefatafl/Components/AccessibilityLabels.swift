@@ -1,3 +1,5 @@
+import LINKER
+
 struct AccessibilityLabels {
     static func squareLabel(row: Int, col: Int, piece: Piece?) -> String {
         let coord = "\(Position.columnLetter(col))\(row + 1)"
@@ -18,11 +20,13 @@ struct AccessibilityLabels {
         case "toggle-ai": return "Toggle AI"
         case "toggle-mute": return "Toggle Sound"
         case "cycle-difficulty": return "Change Difficulty"
+        case "cycle-personality": return "Change AI Style"
+        case "cycle-variant": return "Change Variant"
         case "flip-board": return "Flip Board"
         case "toggle-rules": return "Show Rules"
         case "request-hint": return "Get Hint"
         case "toggle-coordinates": return "Toggle Coordinates"
-        default: return action.replacingOccurrences(of: "-", with: " ").capitalized
+        default: return capitalizeWords(action.replacingAll("-", with: " "))
         }
     }
 
@@ -38,4 +42,21 @@ struct AccessibilityLabels {
         case .inProgress: return "Game in progress"
         }
     }
+}
+
+private func capitalizeWords(_ text: String) -> String {
+    var result = ""
+    var capitalizeNext = true
+    for ch in text {
+        if ch == " " {
+            result.append(ch)
+            capitalizeNext = true
+        } else if capitalizeNext {
+            result.append(ch.uppercased().first ?? ch)
+            capitalizeNext = false
+        } else {
+            result.append(ch)
+        }
+    }
+    return result
 }

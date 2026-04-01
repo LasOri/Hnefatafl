@@ -1,3 +1,5 @@
+import LINKER
+
 struct GameStatsCard: Equatable {
     var totalMoves: Int
     var captureCount: Int
@@ -8,6 +10,6 @@ struct GameStatsCard: Equatable {
             return "N/A"
         }
         let rate = 60.0 / averageMoveTime
-        return String(format: "%.1f moves/min", rate)
+        return "\(formatDecimal(rate, decimals: 1)) moves/min"
     }
 }

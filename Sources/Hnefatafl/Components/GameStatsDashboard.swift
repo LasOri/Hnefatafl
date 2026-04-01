@@ -1,3 +1,5 @@
+import LINKER
+
 struct DashboardEntry: Equatable {
     let label: String
     let value: String
@@ -20,7 +22,7 @@ struct GameStatsDashboard {
         let materialSection = DashboardSection(title: "Material", entries: [
             DashboardEntry(label: "Attackers", value: String(balance.attackers)),
             DashboardEntry(label: "Defenders", value: String(balance.defenders)),
-            DashboardEntry(label: "Ratio", value: String(format: "%.1f", balance.ratio)),
+            DashboardEntry(label: "Ratio", value: formatDecimal(balance.ratio, decimals: 1)),
         ])
 
         let turnSection = DashboardSection(title: "Turn", entries: [
