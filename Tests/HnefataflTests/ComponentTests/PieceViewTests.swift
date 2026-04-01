@@ -65,15 +65,15 @@ struct PieceViewTests {
         #expect(kingClass?.contains("piece-svg-king") == true)
     }
 
-    @Test("attacker SVG uses dark color fill")
+    @Test("attacker SVG uses dark color fill for shield body")
     func attackerSVG_usesDarkFill() {
         let nodes = PieceView.render(piece: .attacker)
         let rendered = render(nodes)
 
-        let circle = rendered.find(tag: "circle")
-        let fill = circle?.attr("fill")
-
-        #expect(fill == "#2d1b0e")
+        let circles = rendered.findAll(tag: "circle")
+        // Viking design: first circle is iron rim, second is shield body
+        let fills = circles.map { $0.attr("fill") }
+        #expect(fills.contains(VikingColors.oakHeart))
     }
 
     @Test("defender SVG uses light color fill")
