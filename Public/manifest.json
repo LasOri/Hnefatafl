@@ -1,0 +1,20 @@
+{
+  "name": "Hnefatafl",
+  "short_name": "Hnefatafl",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#5c3a1e",
+  "background_color": "#1a1207",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -14,6 +14,10 @@ struct IterativeDeepening {
         var bestScore: Int? = nil
         var depthReached = 0
 
+        guard maxDepth >= 1 else {
+            return SearchResult(move: nil, score: nil, depthReached: 0)
+        }
+
         for depth in 1...maxDepth {
             let moves = game.position.allLegalMoves(for: game.currentPlayer)
             guard !moves.isEmpty else { break }

@@ -60,6 +60,38 @@ struct Position: Equatable {
         return Position(cells: cells)
     }
 
+    static func tablutStart() -> Position {
+        var cells: [Piece?] = Array(repeating: nil, count: cellCount)
+
+        // Tablut adapted to 11x11: 16 attackers in cross pattern, offset by 1 from edges
+        let attackers: [(Int, Int)] = [
+            // Top group
+            (1,4),(1,5),(1,6),
+            (2,5),
+            // Left group
+            (4,1),(5,1),(6,1),
+            (5,2),
+            // Right group
+            (4,9),(5,9),(6,9),
+            (5,8),
+            // Bottom group
+            (8,5),
+            (9,4),(9,5),(9,6),
+        ]
+
+        // 8 defenders around the king
+        let defenders: [(Int, Int)] = [
+            (4,5),(5,4),(5,6),(6,5),
+            (3,5),(5,3),(5,7),(7,5),
+        ]
+
+        for (r, c) in attackers { cells[index(row: r, col: c)] = .attacker }
+        for (r, c) in defenders { cells[index(row: r, col: c)] = .defender }
+        cells[index(row: 5, col: 5)] = .king
+
+        return Position(cells: cells)
+    }
+
     static func index(row: Int, col: Int) -> Int {
         row * boardSize + col
     }

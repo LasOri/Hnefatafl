@@ -13,12 +13,16 @@ struct GameState: Equatable {
     let muted: Bool
     let captureHistory: [Bool]
     let aiDifficulty: AIDifficulty
+    let aiPersonality: AIPersonality
     let announcement: String?
     let boardFlipped: Bool
     let showRules: Bool
     let replayStep: Int?
     let hintMove: Move?
     let showCoordinates: Bool
+    let selectedVariant: SelectedVariant
+    let aiEvalScore: Int?
+    let aiSearchDepth: Int?
 
     init() {
         game = Game()
@@ -35,12 +39,16 @@ struct GameState: Equatable {
         muted = false
         captureHistory = []
         aiDifficulty = .medium
+        aiPersonality = .balanced
         announcement = nil
         boardFlipped = false
         showRules = false
         replayStep = nil
         hintMove = nil
         showCoordinates = true
+        selectedVariant = .copenhagen
+        aiEvalScore = nil
+        aiSearchDepth = nil
     }
 
     init(
@@ -58,12 +66,16 @@ struct GameState: Equatable {
         muted: Bool = false,
         captureHistory: [Bool] = [],
         aiDifficulty: AIDifficulty = .medium,
+        aiPersonality: AIPersonality = .balanced,
         announcement: String? = nil,
         boardFlipped: Bool = false,
         showRules: Bool = false,
         replayStep: Int? = nil,
         hintMove: Move? = nil,
-        showCoordinates: Bool = true
+        showCoordinates: Bool = true,
+        selectedVariant: SelectedVariant = .copenhagen,
+        aiEvalScore: Int? = nil,
+        aiSearchDepth: Int? = nil
     ) {
         self.game = game
         self.selectedSquare = selectedSquare
@@ -79,12 +91,16 @@ struct GameState: Equatable {
         self.muted = muted
         self.captureHistory = captureHistory
         self.aiDifficulty = aiDifficulty
+        self.aiPersonality = aiPersonality
         self.announcement = announcement
         self.boardFlipped = boardFlipped
         self.showRules = showRules
         self.replayStep = replayStep
         self.hintMove = hintMove
         self.showCoordinates = showCoordinates
+        self.selectedVariant = selectedVariant
+        self.aiEvalScore = aiEvalScore
+        self.aiSearchDepth = aiSearchDepth
     }
 
     static func == (lhs: GameState, rhs: GameState) -> Bool {
@@ -102,11 +118,15 @@ struct GameState: Equatable {
         lhs.muted == rhs.muted &&
         lhs.captureHistory == rhs.captureHistory &&
         lhs.aiDifficulty == rhs.aiDifficulty &&
+        lhs.aiPersonality == rhs.aiPersonality &&
         lhs.announcement == rhs.announcement &&
         lhs.boardFlipped == rhs.boardFlipped &&
         lhs.showRules == rhs.showRules &&
         lhs.replayStep == rhs.replayStep &&
         lhs.hintMove == rhs.hintMove &&
-        lhs.showCoordinates == rhs.showCoordinates
+        lhs.showCoordinates == rhs.showCoordinates &&
+        lhs.selectedVariant == rhs.selectedVariant &&
+        lhs.aiEvalScore == rhs.aiEvalScore &&
+        lhs.aiSearchDepth == rhs.aiSearchDepth
     }
 }

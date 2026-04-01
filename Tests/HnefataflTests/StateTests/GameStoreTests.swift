@@ -2,7 +2,7 @@ import Testing
 import LINKER
 @testable import Hnefatafl
 
-@Suite("GameStore Tests")
+@Suite("GameStore Tests", .serialized)
 struct GameStoreTests {
 
     @Test("store initializes with Copenhagen start")

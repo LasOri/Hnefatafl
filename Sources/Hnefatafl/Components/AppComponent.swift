@@ -111,6 +111,17 @@ struct AppComponent {
             children: [AnyNode(Text(difficultyLabel))]
         )
 
+        let personalityLabel = "Style: \(state.aiPersonality.name)"
+        let personalityBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-personality"),
+                Attribute(name: "data-action", value: "cycle-personality"),
+                Attribute(name: "aria-label", value: personalityLabel)
+            ],
+            children: [AnyNode(Text(personalityLabel))]
+        )
+
         let flipLabel = state.boardFlipped ? "Unflip Board" : "Flip Board"
         let flipBtn = Element<AnyHTMLContext>(
             tag: "button",
@@ -120,6 +131,17 @@ struct AppComponent {
                 Attribute(name: "aria-label", value: flipLabel)
             ],
             children: [AnyNode(Text(flipLabel))]
+        )
+
+        let variantLabel = state.selectedVariant.label
+        let variantBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-variant"),
+                Attribute(name: "data-action", value: "cycle-variant"),
+                Attribute(name: "aria-label", value: variantLabel)
+            ],
+            children: [AnyNode(Text(variantLabel))]
         )
 
         let rulesBtn = Element<AnyHTMLContext>(
@@ -139,8 +161,23 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(flipBtn), AnyNode(rulesBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(personalityBtn), AnyNode(variantBtn), AnyNode(flipBtn), AnyNode(rulesBtn)]
         )
-        return [AnyNode(toolbar)]
+
+        var nodes: [AnyNode] = [AnyNode(toolbar)]
+
+        if let evalData = EvalBar.data(evalScore: state.aiEvalScore, searchDepth: state.aiSearchDepth) {
+            let evalBar = Element<AnyHTMLContext>(
+                tag: "div",
+                attributes: [
+                    Attribute(name: "class", value: "eval-bar"),
+                    Attribute(name: "aria-label", value: "AI evaluation: \(evalData.label)")
+                ],
+                children: [AnyNode(Text(evalData.label))]
+            )
+            nodes.append(AnyNode(evalBar))
+        }
+
+        return nodes
     }
 }

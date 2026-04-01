@@ -5,14 +5,6 @@ enum AIMode: Equatable {
 
 struct AIGameLoop {
     static func aiMove(game: Game, mode: AIMode, difficulty: AIDifficulty = .medium) -> Move? {
-        guard game.status == .inProgress else { return nil }
-
-        switch mode {
-        case .humanVsHuman:
-            return nil
-        case .humanVsAI(let humanSide):
-            guard game.currentPlayer != humanSide else { return nil }
-            return EvaluationAI.pickMove(game: game, depth: difficulty.searchDepth)
-        }
+        EnhancedAIGameLoop.selectMove(game: game, mode: mode, difficulty: difficulty)
     }
 }

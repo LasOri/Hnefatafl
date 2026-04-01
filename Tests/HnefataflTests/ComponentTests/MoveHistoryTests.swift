@@ -3,7 +3,7 @@ import LINKER
 import LINKERTesting
 @testable import Hnefatafl
 
-@Suite("MoveHistory Tests")
+@Suite("MoveHistory Tests", .serialized)
 struct MoveHistoryTests {
 
     @Test("MoveHistoryComponent renders empty list at start")

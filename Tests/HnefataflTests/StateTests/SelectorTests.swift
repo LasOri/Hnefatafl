@@ -2,7 +2,7 @@ import Testing
 import LINKER
 @testable import Hnefatafl
 
-@Suite("Selector Tests")
+@Suite("Selector Tests", .serialized)
 struct SelectorTests {
 
     @Test("selectCurrentPlayer returns attacker at game start")

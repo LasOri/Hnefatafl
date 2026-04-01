@@ -41,6 +41,8 @@ struct EventWiring {
         case "replay-back": return .replayBack
         case "request-hint": return .requestHint
         case "toggle-coordinates": return .toggleCoordinates
+        case "cycle-personality": return .cyclePersonality
+        case "cycle-variant": return .cycleVariant
         default: return nil
         }
     }

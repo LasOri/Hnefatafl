@@ -2,7 +2,7 @@ import Testing
 import LINKER
 @testable import Hnefatafl
 
-@Suite("Phase H Integration Tests")
+@Suite("Phase H Integration Tests", .serialized)
 struct PhaseHIntegrationTests {
 
     @Test("muteToggle via store updates state")

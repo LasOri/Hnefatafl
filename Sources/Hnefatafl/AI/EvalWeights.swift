@@ -19,4 +19,30 @@ struct EvalWeights: Equatable {
 
     static let aggressive = EvalWeights(material: 50, mobility: 20, kingSafety: 10, territory: 10, position: 10)
     static let defensive = EvalWeights(material: 30, mobility: 15, kingSafety: 30, territory: 15, position: 10)
+
+    func adjustedForPhase(_ phase: GamePhase) -> EvalWeights {
+        switch phase {
+        case .opening:
+            // Opening: emphasize mobility and territory control
+            return EvalWeights(
+                material: material,
+                mobility: mobility + 10,
+                kingSafety: kingSafety,
+                territory: territory + 10,
+                position: position
+            )
+        case .midgame:
+            // Midgame: balanced, use base weights as-is
+            return self
+        case .endgame:
+            // Endgame: king safety and position (corner proximity) become critical
+            return EvalWeights(
+                material: material - 10,
+                mobility: mobility,
+                kingSafety: kingSafety + 15,
+                territory: territory,
+                position: position + 15
+            )
+        }
+    }
 }

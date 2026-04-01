@@ -22,4 +22,6 @@ enum GameAction: Action {
     case replayBack
     case requestHint
     case toggleCoordinates
+    case cyclePersonality
+    case cycleVariant
 }

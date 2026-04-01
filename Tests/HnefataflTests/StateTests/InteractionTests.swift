@@ -2,7 +2,7 @@ import Testing
 import LINKER
 @testable import Hnefatafl
 
-@Suite("Interaction Tests")
+@Suite("Interaction Tests", .serialized)
 struct InteractionTests {
 
     @Test("clicking own piece selects it")

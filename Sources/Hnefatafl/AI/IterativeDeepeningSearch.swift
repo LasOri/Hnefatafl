@@ -7,6 +7,7 @@ struct IDSearchResult: Equatable {
 enum IterativeDeepeningSearch {
     static func search(position: Position, player: Player, maxDepth: Int) -> IDSearchResult {
         var bestResult = IDSearchResult(bestMove: nil, score: 0, depthReached: 0)
+        guard maxDepth >= 1 else { return bestResult }
         for depth in 1...maxDepth {
             let moves = position.allLegalMoves(for: player)
             guard !moves.isEmpty else { break }

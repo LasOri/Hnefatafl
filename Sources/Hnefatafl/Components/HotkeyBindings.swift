@@ -23,6 +23,8 @@ struct HotkeyBindings: Equatable {
         "m": "toggle-mute",
         "a": "toggle-ai",
         "d": "cycle-difficulty",
+        "p": "cycle-personality",
+        "v": "cycle-variant",
         "f": "flip-board",
         "r": "toggle-rules",
         "h": "request-hint",

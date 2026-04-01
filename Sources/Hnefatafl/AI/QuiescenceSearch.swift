@@ -1,6 +1,16 @@
 enum QuiescenceSearch {
     static func search(position: Position, player: Player, alpha: Int, beta: Int) -> Int {
-        let standPat = staticEval(position: position, player: player)
+        search(position: position, player: player, alpha: alpha, beta: beta, evaluator: staticEval)
+    }
+
+    static func search(
+        position: Position,
+        player: Player,
+        alpha: Int,
+        beta: Int,
+        evaluator: (Position, Player) -> Int
+    ) -> Int {
+        let standPat = evaluator(position, player)
         if standPat >= beta { return beta }
         var currentAlpha = max(alpha, standPat)
 
@@ -8,7 +18,7 @@ enum QuiescenceSearch {
         for move in captureMoves {
             let newPos = position.applyMove(move)
             let opponent: Player = player == .attacker ? .defender : .attacker
-            let score = -search(position: newPos, player: opponent, alpha: -beta, beta: -currentAlpha)
+            let score = -search(position: newPos, player: opponent, alpha: -beta, beta: -currentAlpha, evaluator: evaluator)
             if score >= beta { return beta }
             currentAlpha = max(currentAlpha, score)
         }

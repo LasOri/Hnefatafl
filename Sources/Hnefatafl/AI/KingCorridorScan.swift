@@ -90,6 +90,7 @@ enum KingCorridorScan {
     private static func isRowClear(row: Int, fromCol: Int, toCol: Int, position: Position) -> Bool {
         let minCol = min(fromCol, toCol)
         let maxCol = max(fromCol, toCol)
+        guard minCol + 1 < maxCol else { return true }
         for col in (minCol + 1)..<maxCol {
             if position.pieceAt(row: row, col: col) != nil {
                 return false
@@ -101,6 +102,7 @@ enum KingCorridorScan {
     private static func isColClear(col: Int, fromRow: Int, toRow: Int, position: Position) -> Bool {
         let minRow = min(fromRow, toRow)
         let maxRow = max(fromRow, toRow)
+        guard minRow + 1 < maxRow else { return true }
         for row in (minRow + 1)..<maxRow {
             if position.pieceAt(row: row, col: col) != nil {
                 return false
