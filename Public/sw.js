@@ -1,11 +1,11 @@
-const CACHE_NAME = 'hnefatafl-v1';
+const CACHE_NAME = 'hnefatafl-v2';
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
-  '/main.wasm',
+  '/Hnefatafl.wasm',
   '/main.js',
-  '/style.css',
   '/manifest.json',
+  '/icons/icon.svg',
 ];
 
 self.addEventListener('install', (event) => {

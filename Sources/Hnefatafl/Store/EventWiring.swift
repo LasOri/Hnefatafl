@@ -43,7 +43,21 @@ struct EventWiring {
         case "toggle-coordinates": return .toggleCoordinates
         case "cycle-personality": return .cyclePersonality
         case "cycle-variant": return .cycleVariant
+        case "toggle-p2p": return .toggleP2P
         default: return nil
+        }
+    }
+
+    static func p2pActionForButton(_ action: String, state: GameState) -> P2PGameAction? {
+        switch action {
+        case "p2p-host":
+            return .hostGame(variant: state.selectedVariant)
+        case "p2p-join":
+            return .joinGame(peerId: "")
+        case "p2p-leave":
+            return .leaveGame
+        default:
+            return nil
         }
     }
 }

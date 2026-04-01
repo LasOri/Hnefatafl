@@ -5,10 +5,16 @@ struct AppComponent {
         var children: [AnyNode] = []
 
         children.append(contentsOf: StatusComponent.render(state: state))
-        children.append(contentsOf: BoardComponent.render(state: state))
+
+        if state.showP2PConnect {
+            children.append(contentsOf: P2PConnectComponent.render(state: state))
+        } else {
+            children.append(contentsOf: BoardComponent.render(state: state))
+            children.append(contentsOf: MoveHistoryComponent.render(state: state))
+            children.append(contentsOf: GameOverOverlay.render(status: state.game.status))
+        }
+
         children.append(contentsOf: toolbarNodes(state: state))
-        children.append(contentsOf: MoveHistoryComponent.render(state: state))
-        children.append(contentsOf: GameOverOverlay.render(status: state.game.status))
 
         if state.showRules {
             let closeBtn = Element<AnyHTMLContext>(
@@ -154,6 +160,17 @@ struct AppComponent {
             children: [AnyNode(Text("Rules"))]
         )
 
+        let p2pLabel = state.showP2PConnect ? "Back to Game" : "Play Online"
+        let p2pBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-p2p"),
+                Attribute(name: "data-action", value: "toggle-p2p"),
+                Attribute(name: "aria-label", value: p2pLabel)
+            ],
+            children: [AnyNode(Text(p2pLabel))]
+        )
+
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
@@ -161,7 +178,7 @@ struct AppComponent {
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")
             ],
-            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(personalityBtn), AnyNode(variantBtn), AnyNode(flipBtn), AnyNode(rulesBtn)]
+            children: [AnyNode(undoBtn), AnyNode(newGameBtn), AnyNode(aiBtn), AnyNode(muteBtn), AnyNode(difficultyBtn), AnyNode(personalityBtn), AnyNode(variantBtn), AnyNode(flipBtn), AnyNode(rulesBtn), AnyNode(p2pBtn)]
         )
 
         var nodes: [AnyNode] = [AnyNode(toolbar)]

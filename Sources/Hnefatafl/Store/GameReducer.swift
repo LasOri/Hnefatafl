@@ -60,6 +60,9 @@ func gameReducer(state: GameState, action: any Action) -> GameState {
 
     case .cycleVariant:
         return reduceCycleVariant(state: state)
+
+    case .toggleP2P:
+        return reduceToggleP2P(state: state)
     }
 }
 
@@ -661,5 +664,30 @@ private func reduceCycleVariant(state: GameState) -> GameState {
         showRules: state.showRules,
         showCoordinates: state.showCoordinates,
         selectedVariant: newVariant
+    )
+}
+
+private func reduceToggleP2P(state: GameState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        lastMove: state.lastMove,
+        capturedSquares: state.capturedSquares,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: !state.showP2PConnect
     )
 }

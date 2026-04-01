@@ -6,7 +6,7 @@ import JavaScriptEventLoop
 
 JavaScriptEventLoop.installGlobalExecutor()
 
-let store = createGameStore()
+let store = createP2PGameStore()
 let runtime = LinkerRuntime(store: store, rootElementId: "app")
 runtime.setNodeRender(PageRenderer.renderForStore())
 

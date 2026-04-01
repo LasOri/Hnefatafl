@@ -31,6 +31,8 @@ struct DOMEventBridge {
                 if let buttonAction = EventParser.parseButtonAction(actionAttr) {
                     if let action = EventWiring.actionForButton(buttonAction) {
                         runtime.dispatch(action)
+                    } else if let p2pAction = EventWiring.p2pActionForButton(buttonAction, state: state) {
+                        runtime.dispatch(p2pAction)
                     }
                 }
             }

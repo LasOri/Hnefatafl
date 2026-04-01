@@ -63,7 +63,9 @@ struct BoardStylingTests {
         let nodes = BoardComponent.render(state: state)
         let rendered = render(nodes)
 
-        let svgs = rendered.findAll(tag: "svg")
+        let svgs = rendered.findAll(tag: "svg").filter {
+            $0.className?.contains("piece-svg") == true
+        }
 
         #expect(svgs.count == 1)
     }

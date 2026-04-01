@@ -108,7 +108,19 @@ struct BoardComponent {
         }
 
         let ariaLabel = squareAriaLabel(piece: piece, row: row, col: col)
-        let children: [AnyNode] = piece.map { PieceView.render(piece: $0) } ?? []
+        let children: [AnyNode]
+        if let piece {
+            children = PieceView.render(piece: piece)
+        } else {
+            switch squareType {
+            case .corner:
+                children = [AnyNode(VikingPieceSVG.valknut(size: 20))]
+            case .throne:
+                children = [AnyNode(VikingPieceSVG.helmOfAwe(size: 24))]
+            case .regular:
+                children = []
+            }
+        }
 
         return Element<AnyHTMLContext>(
             tag: "div",

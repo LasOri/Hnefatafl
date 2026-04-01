@@ -24,4 +24,5 @@ enum GameAction: Action {
     case toggleCoordinates
     case cyclePersonality
     case cycleVariant
+    case toggleP2P
 }
