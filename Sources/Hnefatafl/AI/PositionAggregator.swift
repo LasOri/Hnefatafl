@@ -1,6 +1,19 @@
 enum PositionAggregator {
     static func compute(position: Position, player: Player) -> Int {
-        // Base position score: king proximity to corners
+        let opponent = player.opponent
+
+        let base = baseScore(position: position, player: player)
+        let formation = formationSignal(position: position, player: player, opponent: opponent)
+        let extraPiece = extraPieceSignal(position: position, player: player, opponent: opponent)
+        let extraForm = extraFormSignal(position: position, player: player)
+        let importance = importanceBonus()
+
+        return base + formation / 3 + extraPiece / 4 + extraForm / 5 + importance / 5
+    }
+
+    // MARK: - Base score: king proximity to corners
+
+    private static func baseScore(position: Position, player: Player) -> Int {
         let size = Position.boardSize
         var kingRow: Int?
         var kingCol: Int?
@@ -22,17 +35,15 @@ enum PositionAggregator {
         let minDistance = corners.map { abs(kr - $0.0) + abs(kc - $0.1) }.min()!
         let proximityScore = 10 - minDistance
 
-        let baseScore: Int
-        switch player {
-        case .attacker:
-            baseScore = -proximityScore
-        case .defender:
-            baseScore = proximityScore
-        }
+        // King proximity to corner favors defender
+        return PerspectiveAdjust.forDefenderPositive(proximityScore, player: player)
+    }
 
+    // MARK: - Formation / coordination signal
+
+    private static func formationSignal(position: Position, player: Player, opponent: Player) -> Int {
         // Piece square table
         let pst = PieceSquareTable.totalScore(position: position, player: player)
-        let opponent: Player = player == .attacker ? .defender : .attacker
         let pstOpp = PieceSquareTable.totalScore(position: position, player: opponent)
 
         // Formation scores
@@ -121,11 +132,14 @@ enum PositionAggregator {
             structAdj = shield / 3 - wallStr / 3 - barrier / 3
         }
 
-        let subSignal = (pstDiff + coordDiff / 2 + connDiff + distBalance / 3
+        return (pstDiff + coordDiff / 2 + connDiff + distBalance / 3
                         + support / 2 - unsupported / 2 + anchors / 2 + chain / 2
                         - isolated / 2 - structIso + shapeBonus + formAdj + structAdj) / 8
+    }
 
-        // Additional piece analysis modules
+    // MARK: - Additional piece analysis
+
+    private static func extraPieceSignal(position: Position, player: Player, opponent: Player) -> Int {
         let blockage = PieceBlockageEval.blockageScore(position: position, player: player)
         let exchange = PieceExchange.exchangeBalance(position: position, player: player)
         let influence = PieceInfluenceRadius.totalInfluence(position: position, player: player)
@@ -138,6 +152,26 @@ enum PositionAggregator {
             momentum = PieceMomentum.defenderMomentum(position: position) - PieceMomentum.attackerMomentum(position: position)
         }
         let adjacency = AdjacentPieceCount.maxAdjacency(position: position, player: player)
+
+        // Wire remaining piece modules
+        let pieceClusterInfo = PieceCluster.analyze(position: position, player: player)
+        let pieceClusterCount = pieceClusterInfo.count
+        let groupCount = PieceGrouping.find(position: position, for: player).count
+        let alignments = PieceAlignment.detect(position: position, for: player).count
+        let reachEntries = PieceReach.computeAll(position: position)
+        let reachTotal = reachEntries.count
+        let proximity = PieceProximity.averageProximity(position: position, player: player)
+        let defensiveWalls = DefensiveWall.detect(position: position).count
+
+        return (-blockage / 3 + exchange / 3 + (influence - influenceOpp) / 5
+                               + momentum / 3 + adjacency / 3 + pieceClusterCount / 3
+                               + groupCount / 3 + alignments / 3 + reachTotal / 5
+                               + Int(proximity) / 3 + defensiveWalls / 2) / 8
+    }
+
+    // MARK: - Attack formation + reserve
+
+    private static func extraFormSignal(position: Position, player: Player) -> Int {
         let atkReserve = AttackerReserve.reserveStrength(position: position)
         let atkFormClass = AttackFormation.classify(position: position)
         let atkFormBonus: Int
@@ -149,35 +183,22 @@ enum PositionAggregator {
         }
         let throneCtrl = ThroneProximity.throneControlScore(position: position)
         let edgeDist = EdgeDistanceCalc.averageEdgeDistance(position: position, player: player)
-
-        // Wire remaining piece modules
-        let pieceClusterInfo = PieceCluster.analyze(position: position, player: player)
-        let pieceClusterCount = pieceClusterInfo.count
-        let groupCount = PieceGrouping.find(position: position, for: player).count
-        let alignments = PieceAlignment.detect(position: position, for: player).count
-        let reachEntries = PieceReach.computeAll(position: position)
-        let reachTotal = reachEntries.count
-        let proximity = PieceProximity.averageProximity(position: position, player: player)
-        let defensiveWalls = DefensiveWall.detect(position: position).count
         let attackerSpreadVar = AttackerSpread.variance(position: position)
 
-        let extraPieceSignal = (-blockage / 3 + exchange / 3 + (influence - influenceOpp) / 5
-                               + momentum / 3 + adjacency / 3 + pieceClusterCount / 3
-                               + groupCount / 3 + alignments / 3 + reachTotal / 5
-                               + Int(proximity) / 3 + defensiveWalls / 2) / 8
-
-        let extraFormSignal: Int
+        let result: Int
         switch player {
         case .attacker:
-            extraFormSignal = atkFormBonus + atkReserve / 3 + throneCtrl / 3 - Int(edgeDist) - Int(attackerSpreadVar) / 5
+            result = atkFormBonus + atkReserve / 3 + throneCtrl / 3 - Int(edgeDist) - Int(attackerSpreadVar) / 5
         case .defender:
-            extraFormSignal = -atkFormBonus - atkReserve / 3 - throneCtrl / 3 + Int(edgeDist) + Int(attackerSpreadVar) / 5
+            result = -atkFormBonus - atkReserve / 3 - throneCtrl / 3 + Int(edgeDist) + Int(attackerSpreadVar) / 5
         }
+        return result
+    }
 
-        // === Square importance ===
+    // MARK: - Square importance
+
+    private static func importanceBonus() -> Int {
         let importanceRanking = SquareImportance.ranking()
-        let importanceBonus = importanceRanking.isEmpty ? 0 : importanceRanking[0].importance / 5
-
-        return baseScore + subSignal / 3 + extraPieceSignal / 4 + extraFormSignal / 5 + importanceBonus / 5
+        return importanceRanking.isEmpty ? 0 : importanceRanking[0].importance / 5
     }
 }

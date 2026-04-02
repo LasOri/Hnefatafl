@@ -50,7 +50,7 @@ struct VikingStyleSheet {
         /* Semantic */
         --text-primary: #e8dcc8;
         --text-secondary: #b0a898;
-        --text-muted: #8a8580;
+        --text-muted: #a09a94;
         --accent: #c9a84c;
         --accent-hover: #dab85c;
         --glow-gold: rgba(201, 168, 76, 0.4);
@@ -368,10 +368,13 @@ struct VikingStyleSheet {
     }
 
     .move-item {
-        padding: 2px var(--space-2);
+        padding: var(--space-1) var(--space-2);
         background: rgba(201, 168, 76, 0.08);
         border-radius: 2px;
         transition: background var(--duration-fast);
+        min-height: 24px;
+        display: inline-flex;
+        align-items: center;
     }
 
     .move-item:hover {
@@ -409,6 +412,30 @@ struct VikingStyleSheet {
             0 0 40px rgba(201, 168, 76, 0.2),
             0 2px 4px rgba(0, 0, 0, 0.8);
         animation: rune-glow 2s ease-in-out infinite alternate;
+    }
+
+    .btn-play-again {
+        margin-top: var(--space-6);
+        padding: var(--space-3) var(--space-8);
+        background: rgba(201, 168, 76, 0.15);
+        border: 2px solid var(--viking-gold);
+        color: var(--viking-gold-bright);
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: var(--font-display);
+        font-size: 1.25rem;
+        letter-spacing: 0.08em;
+        transition: all var(--duration-fast) var(--easing);
+    }
+
+    .btn-play-again:hover {
+        background: rgba(201, 168, 76, 0.25);
+        box-shadow: 0 0 20px rgba(201, 168, 76, 0.4);
+    }
+
+    .btn-play-again:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 4px;
     }
 
     /* --- Rules Panel: Aged parchment scroll --- */
@@ -612,13 +639,15 @@ struct VikingStyleSheet {
         color: var(--text-primary);
         font-family: var(--font-mono);
         font-size: 0.875rem;
-        outline: none;
+        outline: 2px solid transparent;
         transition: border-color var(--duration-fast);
     }
 
-    .p2p-input:focus {
+    .p2p-input:focus-visible {
         border-color: var(--viking-gold);
         box-shadow: 0 0 8px rgba(201, 168, 76, 0.2);
+        outline: 2px solid var(--viking-gold);
+        outline-offset: 2px;
     }
 
     .p2p-input::placeholder {
@@ -642,7 +671,7 @@ struct VikingStyleSheet {
 
     .p2p-status-dot.connected { background: var(--viking-verdigris); box-shadow: 0 0 6px var(--viking-verdigris); }
     .p2p-status-dot.connecting { background: var(--viking-gold); animation: pulse 1.5s ease-in-out infinite; }
-    .p2p-status-dot.disconnected { background: var(--viking-iron); }
+    .p2p-status-dot.disconnected { background: #a09a94; }
     .p2p-status-dot.failed { background: var(--viking-madder); }
 
     .btn-host, .btn-join {
@@ -698,6 +727,62 @@ struct VikingStyleSheet {
     }
     .p2p-divider::before { left: 0; }
     .p2p-divider::after { right: 0; }
+
+    .p2p-title {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--viking-gold);
+        text-align: center;
+        letter-spacing: 0.1em;
+        margin-bottom: var(--space-4);
+    }
+
+    .p2p-role {
+        font-family: var(--font-display);
+        font-size: 1.125rem;
+        letter-spacing: 0.05em;
+    }
+
+    .p2p-id-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: var(--space-3);
+    }
+
+    .p2p-leave-btn {
+        margin-top: var(--space-4);
+    }
+
+    .p2p-desc {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: var(--space-4);
+    }
+
+    .p2p-variant-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: var(--space-2);
+    }
+
+    .p2p-join-btn {
+        margin-top: var(--space-3);
+    }
+
+    /* Skip navigation link */
+    .skip-link:focus {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        overflow: visible !important;
+        clip: auto !important;
+        white-space: normal !important;
+        padding: var(--space-2) var(--space-4);
+        background: var(--viking-gold);
+        color: var(--viking-soot);
+        font-weight: 600;
+        z-index: 1000;
+    }
 
     /* --- Animations --- */
     @keyframes rune-glow {

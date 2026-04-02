@@ -22,8 +22,7 @@ struct P2PConnectComponent {
         let title = Element<AnyHTMLContext>(
             tag: "h2",
             attributes: [
-                Attribute(name: "class", value: "p2p-title"),
-                Attribute(name: "style", value: "font-family: var(--font-display); font-size: 1.5rem; color: var(--viking-gold); text-align: center; letter-spacing: 0.1em; margin-bottom: var(--space-4);")
+                Attribute(name: "class", value: "p2p-title")
             ],
             children: [AnyNode(Text("Peer-to-Peer Battle"))]
         )
@@ -67,7 +66,7 @@ struct P2PConnectComponent {
         let roleEl = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
-                Attribute(name: "style", value: "font-family: var(--font-display); font-size: 1.125rem; letter-spacing: 0.05em;")
+                Attribute(name: "class", value: "p2p-role")
             ],
             children: [AnyNode(Text(roleText))]
         )
@@ -118,7 +117,7 @@ struct P2PConnectComponent {
             let idLabel = Element<AnyHTMLContext>(
                 tag: "div",
                 attributes: [
-                    Attribute(name: "style", value: "font-size: 0.75rem; color: var(--text-muted); margin-top: var(--space-3);")
+                    Attribute(name: "class", value: "p2p-id-label")
                 ],
                 children: [AnyNode(Text("Share this ID with your opponent:"))]
             )
@@ -139,10 +138,9 @@ struct P2PConnectComponent {
         let leaveBtn = Element<AnyHTMLContext>(
             tag: "button",
             attributes: [
-                Attribute(name: "class", value: "btn"),
+                Attribute(name: "class", value: "btn p2p-leave-btn"),
                 Attribute(name: "data-action", value: "p2p-leave"),
-                Attribute(name: "aria-label", value: "Leave game"),
-                Attribute(name: "style", value: "margin-top: var(--space-4);")
+                Attribute(name: "aria-label", value: "Leave game")
             ],
             children: [AnyNode(Text("Leave Game"))]
         )
@@ -171,14 +169,14 @@ struct P2PConnectComponent {
         let desc = Element<AnyHTMLContext>(
             tag: "p",
             attributes: [
-                Attribute(name: "style", value: "font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-4);")
+                Attribute(name: "class", value: "p2p-desc")
             ],
             children: [AnyNode(Text(description))]
         )
         let variantLabel = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
-                Attribute(name: "style", value: "font-size: 0.75rem; color: var(--text-muted); margin-bottom: var(--space-2);")
+                Attribute(name: "class", value: "p2p-variant-label")
             ],
             children: [AnyNode(Text("Variant: \(variant.label)"))]
         )
@@ -207,7 +205,7 @@ struct P2PConnectComponent {
         let desc = Element<AnyHTMLContext>(
             tag: "p",
             attributes: [
-                Attribute(name: "style", value: "font-size: 0.875rem; color: var(--text-secondary); margin-bottom: var(--space-4);")
+                Attribute(name: "class", value: "p2p-desc")
             ],
             children: [AnyNode(Text("Enter the host's Peer ID to join as the Attacker."))]
         )
@@ -227,10 +225,9 @@ struct P2PConnectComponent {
         let btn = Element<AnyHTMLContext>(
             tag: "button",
             attributes: [
-                Attribute(name: "class", value: "btn btn-join"),
+                Attribute(name: "class", value: "btn btn-join p2p-join-btn"),
                 Attribute(name: "data-action", value: "p2p-join"),
-                Attribute(name: "aria-label", value: "Join game"),
-                Attribute(name: "style", value: "margin-top: var(--space-3);")
+                Attribute(name: "aria-label", value: "Join game")
             ],
             children: [AnyNode(Text("Join the Raid"))]
         )

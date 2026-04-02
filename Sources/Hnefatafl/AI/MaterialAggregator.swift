@@ -19,7 +19,7 @@ enum MaterialAggregator {
         let pieceVal = PieceValue.totalValue(position: position, player: player)
         let opponentVal = PieceValue.totalValue(
             position: position,
-            player: player == .attacker ? .defender : .attacker
+            player: player.opponent
         )
 
         // Normalize: balance/delta/numerical are attacker-positive

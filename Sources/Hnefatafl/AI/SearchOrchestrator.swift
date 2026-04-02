@@ -286,7 +286,7 @@ struct SearchOrchestrator {
             if currentAlpha >= beta {
                 cutoffCount += 1
                 killers.store(move: move, at: depth)
-                history.record(move: bestMove, depth: depth)
+                history.record(move: move, depth: depth)
                 tt.store(hash: hash, depth: depth, score: bestScore, flag: .lowerBound)
                 return bestScore
             }

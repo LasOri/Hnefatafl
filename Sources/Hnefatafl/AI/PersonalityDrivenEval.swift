@@ -20,8 +20,7 @@ enum PersonalityDrivenEval {
 
         // Formation bonus from perspective of current player
         let formationMe = FormationAnalyzer.score(position: position, player: player)
-        let opponent: Player = player == .attacker ? .defender : .attacker
-        let formationOpp = FormationAnalyzer.score(position: position, player: opponent)
+        let formationOpp = FormationAnalyzer.score(position: position, player: player.opponent)
         let formationBonus = formationMe - formationOpp
 
         // Shield wall: threats against defenders penalize defender

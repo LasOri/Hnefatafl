@@ -22,14 +22,25 @@ struct GameOverOverlay {
             ],
             children: [AnyNode(Text(text))]
         )
+        let playAgainBtn = Element<AnyHTMLContext>(
+            tag: "button",
+            attributes: [
+                Attribute(name: "class", value: "btn btn-play-again"),
+                Attribute(name: "data-action", value: "new-game"),
+                Attribute(name: "aria-label", value: "Play again"),
+                Attribute(name: "autofocus", value: "true")
+            ],
+            children: [AnyNode(Text("Play Again"))]
+        )
         let overlay = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
                 Attribute(name: "class", value: "game-over-overlay"),
-                Attribute(name: "role", value: "alert"),
-                Attribute(name: "aria-live", value: "assertive")
+                Attribute(name: "role", value: "alertdialog"),
+                Attribute(name: "aria-live", value: "assertive"),
+                Attribute(name: "aria-label", value: text)
             ],
-            children: [AnyNode(heading)]
+            children: [AnyNode(heading), AnyNode(playAgainBtn)]
         )
         return [AnyNode(overlay)]
     }

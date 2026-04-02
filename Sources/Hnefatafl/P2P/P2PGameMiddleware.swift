@@ -64,7 +64,7 @@ private func handleP2PGameAction(
     sequence: inout Int
 ) {
     switch action {
-    case .hostGame(let variant):
+    case .hostGame(_):
         dispatch(AnyAction(P2PAction.initialize))
         break
 
@@ -105,6 +105,10 @@ private func handleIncomingMessage(_ data: String, dispatch: @escaping (AnyActio
               let fromCol = msg.payload["fromCol"]?.intValue,
               let toRow = msg.payload["toRow"]?.intValue,
               let toCol = msg.payload["toCol"]?.intValue else { return }
+        guard fromRow >= 0, fromRow < Position.boardSize,
+              fromCol >= 0, fromCol < Position.boardSize,
+              toRow >= 0, toRow < Position.boardSize,
+              toCol >= 0, toCol < Position.boardSize else { return }
         let move = Move(fromRow: fromRow, fromCol: fromCol, toRow: toRow, toCol: toCol)
         dispatch(AnyAction(P2PGameAction.remoteMove(move)))
 
@@ -117,11 +121,13 @@ private func handleIncomingMessage(_ data: String, dispatch: @escaping (AnyActio
         dispatch(AnyAction(P2PGameAction.peerDisconnected))
 
     case .newGame:
-        dispatch(AnyAction(GameAction.newGame))
+        // Remote peer cannot unilaterally reset the game
+        // Future: dispatch a confirmation request to the local user
+        break
 
     case .ping:
-        let pong = P2PMessage(type: .pong, payload: .null, sequence: msg.sequence)
-        // Note: Would need connection key to send; handled at higher level
+        // Pong would need connection key to send; handled at higher level
+        break
 
     default:
         break

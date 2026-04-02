@@ -132,6 +132,18 @@ private func reduceRemoteMove(state: GameState, move: Move) -> GameState {
     }
     guard state.game.currentPlayer == remoteSide else { return state }
 
+    // Validate move coordinates are in bounds
+    guard move.fromRow >= 0, move.fromRow < Position.boardSize,
+          move.fromCol >= 0, move.fromCol < Position.boardSize,
+          move.toRow >= 0, move.toRow < Position.boardSize,
+          move.toCol >= 0, move.toCol < Position.boardSize else {
+        return state
+    }
+
+    // Validate move is legal
+    let legalMoves = state.game.position.allLegalMoves(for: remoteSide)
+    guard legalMoves.contains(move) else { return state }
+
     let newGame = state.game.makeMove(move)
     let captured = Position.capturedSquares(
         before: state.game.position,

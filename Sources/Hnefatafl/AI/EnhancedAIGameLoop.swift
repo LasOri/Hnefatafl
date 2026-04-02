@@ -15,9 +15,6 @@ enum EnhancedAIGameLoop {
             guard game.currentPlayer != humanSide else { return nil }
         }
 
-        // Step 0: Wire all utility/infrastructure modules (diagnostic warm-up)
-        UtilityIntegration.initialize(position: game.position, player: game.currentPlayer)
-
         // Step 1: Opening book + repertoire lookup
         if let bookMove = openingLookup(game: game) {
             return bookMove

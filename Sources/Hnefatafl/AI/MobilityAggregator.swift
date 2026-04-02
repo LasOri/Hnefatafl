@@ -15,14 +15,14 @@ enum MobilityAggregator {
         let activity = PieceActivityScore.compute(position: position, player: player)
         let oppActivity = PieceActivityScore.compute(
             position: position,
-            player: player == .attacker ? .defender : .attacker
+            player: player.opponent
         )
         let atkMob = AttackerMobility.totalMobility(position: position)
         let defMob = DefenderMobility.totalMobility(position: position)
         let space = SpaceAdvantage.reachableSquares(position: position, player: player)
         let oppSpace = SpaceAdvantage.reachableSquares(
             position: position,
-            player: player == .attacker ? .defender : .attacker
+            player: player.opponent
         )
         let pressure = SpacePressure.spaceControl(position: position, player: player)
         let flex = FlexibilityScore.score(position: position, player: player)

@@ -65,7 +65,8 @@ struct VikingPieceSVG {
 
         return [AnyNode(svgContainer(
             className: "piece-svg piece-svg-attacker",
-            children: [axe1, haft1, axe2, haft2, rim, shield, plank1, plank2, plank3, bossOuter, bossInner, rivet1, rivet2, rivet3, rivet4].map { AnyNode($0) }
+            children: [axe1, haft1, axe2, haft2, rim, shield, plank1, plank2, plank3, bossOuter, bossInner, rivet1, rivet2, rivet3, rivet4].map { AnyNode($0) },
+            ariaLabel: "Attacker piece"
         ))]
     }
 
@@ -93,7 +94,8 @@ struct VikingPieceSVG {
 
         return [AnyNode(svgContainer(
             className: "piece-svg piece-svg-defender",
-            children: [AnyNode(shield), AnyNode(crossV), AnyNode(crossH), AnyNode(outerRim), AnyNode(boss), AnyNode(bossDot)]
+            children: [AnyNode(shield), AnyNode(crossV), AnyNode(crossH), AnyNode(outerRim), AnyNode(boss), AnyNode(bossDot)],
+            ariaLabel: "Defender piece"
         ))]
     }
 
@@ -130,7 +132,8 @@ struct VikingPieceSVG {
 
         return [AnyNode(svgContainer(
             className: "piece-svg piece-svg-king",
-            children: [AnyNode(shieldOuter), AnyNode(crossV), AnyNode(crossH), AnyNode(boss), AnyNode(bossInner), AnyNode(crownBase), AnyNode(gem1), AnyNode(gem2), AnyNode(gem3)]
+            children: [AnyNode(shieldOuter), AnyNode(crossV), AnyNode(crossH), AnyNode(boss), AnyNode(bossInner), AnyNode(crownBase), AnyNode(gem1), AnyNode(gem2), AnyNode(gem3)],
+            ariaLabel: "King piece"
         ))]
     }
 
@@ -228,17 +231,21 @@ struct VikingPieceSVG {
 
     // MARK: - SVG Helpers
 
-    private static func svgContainer(className: String, children: [AnyNode]) -> Element<AnyHTMLContext> {
-        Element<AnyHTMLContext>(
+    private static func svgContainer(className: String, children: [AnyNode], ariaLabel: String = "") -> Element<AnyHTMLContext> {
+        var attrs = [
+            Attribute(name: "xmlns", value: "http://www.w3.org/2000/svg"),
+            Attribute(name: "viewBox", value: "0 0 40 40"),
+            Attribute(name: "width", value: "40"),
+            Attribute(name: "height", value: "40"),
+            Attribute(name: "class", value: className),
+            Attribute(name: "role", value: "img")
+        ]
+        if !ariaLabel.isEmpty {
+            attrs.append(Attribute(name: "aria-label", value: ariaLabel))
+        }
+        return Element<AnyHTMLContext>(
             tag: "svg",
-            attributes: [
-                Attribute(name: "xmlns", value: "http://www.w3.org/2000/svg"),
-                Attribute(name: "viewBox", value: "0 0 40 40"),
-                Attribute(name: "width", value: "40"),
-                Attribute(name: "height", value: "40"),
-                Attribute(name: "class", value: className),
-                Attribute(name: "role", value: "img")
-            ],
+            attributes: attrs,
             children: children
         )
     }

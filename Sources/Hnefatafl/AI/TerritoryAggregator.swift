@@ -94,7 +94,7 @@ enum TerritoryAggregator {
                         + boardBal.score / 5) / 10
 
         // === Additional territory modules ===
-        let opponent: Player = player == .attacker ? .defender : .attacker
+        let opponent = player.opponent
         let sectorMe = BoardSector.pieceCountBySector(position: position, player: player)
         let sectorOpp = BoardSector.pieceCountBySector(position: position, player: opponent)
         let sectorSpread = sectorMe.count - sectorOpp.count

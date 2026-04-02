@@ -1,8 +1,25 @@
 enum TacticalAggregator {
     static func compute(position: Position, player: Player) -> Int {
-        let opponent: Player = player == .attacker ? .defender : .attacker
+        let opponent = player.opponent
 
-        // === Pressure signals ===
+        let pressure = pressureSignal(position: position, player: player)
+        let tempo = tempoSignal(position: position, player: player)
+        let tactical = tacticalSignal(position: position, player: player)
+        let safety = safetySignal(position: position, player: player)
+        let progress = progressSignal(position: position, player: player)
+        let detection = detectionSignal(position: position, player: player, opponent: opponent)
+        let misc = miscSignal(position: position, player: player)
+        let extra = extraTacticalSignal(position: position, player: player)
+        let captureRisk = captureRiskSignal(position: position, player: player)
+
+        return (pressure + tempo + tactical + safety
+               + progress + detection / 3 + misc + extra / 3
+               - captureRisk.score / 3 + captureRisk.penalty / 5) / 6
+    }
+
+    // MARK: - Pressure signals
+
+    private static func pressureSignal(position: Position, player: Player) -> Int {
         let pressure = PressureScore.pressure(position: position, player: player)
         let linePressKing = LinePressure.totalPressureOnKing(position: position)
         let edgePress = EdgePressure.edgePressureTotal(position: position, player: player)
@@ -11,29 +28,20 @@ enum TacticalAggregator {
         let tension = BoardTension.tension(position: position)
         let siege = SiegeScore.siegeLevel(position: position)
 
-        // Pressure favors attacker
-        let pressureSignal: Int
-        switch player {
-        case .attacker:
-            pressureSignal = (pressure + linePressKing / 2 + edgePress / 2 + lateralPress / 3 + backRank / 2 + siege / 2 + tension / 5) / 7
-        case .defender:
-            pressureSignal = -(pressure + linePressKing / 2 + edgePress / 2 + lateralPress / 3 + backRank / 2 + siege / 2 + tension / 5) / 7
-        }
+        let raw = (pressure + linePressKing / 2 + edgePress / 2 + lateralPress / 3 + backRank / 2 + siege / 2 + tension / 5) / 7
+        return PerspectiveAdjust.forAttackerPositive(raw, player: player)
+    }
 
-        // === Tempo signals ===
+    // MARK: - Tempo signals
+
+    private static func tempoSignal(position: Position, player: Player) -> Int {
         let tempo1 = TempoEval.tempoAdvantage(position: position, player: player)
         let tempo2 = TempoBalance.tempoAdvantage(position: position, player: player)
         let tempoCount = TempoCounter.tempoCount(position: position, player: player)
         let initiative = InitiativeTracker.initiativeScore(position: position)
         let gameTempo = GameTempo.evaluate(position: position)
 
-        let tempoAdj: Int
-        switch player {
-        case .attacker:
-            tempoAdj = initiative
-        case .defender:
-            tempoAdj = -initiative
-        }
+        let tempoAdj = PerspectiveAdjust.forAttackerPositive(initiative, player: player)
 
         let gameTempoAdj: Int
         switch player {
@@ -43,9 +51,12 @@ enum TacticalAggregator {
             gameTempoAdj = gameTempo.defenderTempo - gameTempo.attackerTempo
         }
 
-        let tempoSignal = (tempo1 + tempo2 + tempoCount / 2 + tempoAdj + gameTempoAdj) / 5
+        return (tempo1 + tempo2 + tempoCount / 2 + tempoAdj + gameTempoAdj) / 5
+    }
 
-        // === Tactical scores ===
+    // MARK: - Tactical scores
+
+    private static func tacticalSignal(position: Position, player: Player) -> Int {
         let tactical = TacticalScore.score(position: position, player: player)
         let counterAtk = CounterAttackEval.counterAttackScore(position: position, player: player)
         let intercept = InterceptionEval.interceptionScore(position: position)
@@ -55,37 +66,17 @@ enum TacticalAggregator {
         let breakthrough = BreakthroughEval.evaluate(position: position)
         let doubleAtk = DoubleAttackEval.evaluate(position: position)
 
-        // Intercept favors defender
-        let interceptAdj: Int
-        switch player {
-        case .attacker:
-            interceptAdj = -intercept
-        case .defender:
-            interceptAdj = intercept
-        }
+        let interceptAdj = PerspectiveAdjust.forDefenderPositive(intercept, player: player)
+        let breakAdj = PerspectiveAdjust.forDefenderPositive(breakthrough, player: player)
+        let doubleAtkAdj = PerspectiveAdjust.forAttackerPositive(doubleAtk, player: player)
 
-        // Breakthrough favors defender (king escaping)
-        let breakAdj: Int
-        switch player {
-        case .attacker:
-            breakAdj = -breakthrough
-        case .defender:
-            breakAdj = breakthrough
-        }
-
-        // Double attack favors attacker
-        let doubleAtkAdj: Int
-        switch player {
-        case .attacker:
-            doubleAtkAdj = doubleAtk
-        case .defender:
-            doubleAtkAdj = -doubleAtk
-        }
-
-        let tacticalSignal = (tactical + counterAtk / 2 + interceptAdj / 3 + retreat / 3
+        return (tactical + counterAtk / 2 + interceptAdj / 3 + retreat / 3
                              - overext + reinforce / 2 + breakAdj / 2 + doubleAtkAdj / 2) / 6
+    }
 
-        // === Safety scores ===
+    // MARK: - Safety scores
+
+    private static func safetySignal(position: Position, player: Player) -> Int {
         let strongPts = StrongPointEval.strongPointScore(position: position, player: player)
         let guardQual = GuardPostEval.guardQuality(position: position)
         let safeSqCount = SafeSquareEval.safeSquareCount(position: position)
@@ -100,9 +91,12 @@ enum TacticalAggregator {
             safetyAdj = strongPts / 2 + guardQual / 3 + safeSqCount / 5
         }
 
-        let safetySignal = (safetyAdj - passivity) / 3
+        return (safetyAdj - passivity) / 3
+    }
 
-        // === Progress/Phase scores ===
+    // MARK: - Progress/Phase scores
+
+    private static func progressSignal(position: Position, player: Player) -> Int {
         let phaseScore = GamePhaseScore.evaluate(position: position, for: player)
         let atkAdv = AdvancementScore.attackerAdvancement(position: position)
         let defAdv = AdvancementScore.defenderAdvancement(position: position)
@@ -117,32 +111,28 @@ enum TacticalAggregator {
             advAdj = defAdv - atkAdv - penetration / 2
         }
 
-        let progressSignal = (phaseScore.value / 3 + advAdj / 2 + transition / 3) / 3
+        return (phaseScore.value / 3 + advAdj / 2 + transition / 3) / 3
+    }
 
-        // === Detection adapters ===
+    // MARK: - Detection adapters
+
+    private static func detectionSignal(position: Position, player: Player, opponent: Player) -> Int {
         let forks = ForkDetector.forkCount(position: position, player: player)
         let forksOpp = ForkDetector.forkCount(position: position, player: opponent)
         let traps = TrapDetector.trapCount(position: position, player: player)
         let trapsOpp = TrapDetector.trapCount(position: position, player: opponent)
-        let crossfire = CrossfireDetector.crossfireCount(position: position)
         let pinned = PinnedPieceDetector.pinnedCount(position: position, player: player)
         let pinnedOpp = PinnedPieceDetector.pinnedCount(position: position, player: opponent)
         let skewered = SkeweredPieceDetector.skewerCount(position: position, player: player)
         let skeweredOpp = SkeweredPieceDetector.skewerCount(position: position, player: opponent)
 
-        let detectionSignal = (forks - forksOpp) * 3 - (traps - trapsOpp) * 2
+        return (forks - forksOpp) * 3 - (traps - trapsOpp) * 2
                              - (pinned - pinnedOpp) * 2 - (skewered - skeweredOpp) * 2
+    }
 
-        // Crossfire favors attacker
-        let crossfireAdj: Int
-        switch player {
-        case .attacker:
-            crossfireAdj = crossfire
-        case .defender:
-            crossfireAdj = -crossfire
-        }
+    // MARK: - Misc eval signals
 
-        // === Misc eval signals ===
+    private static func miscSignal(position: Position, player: Player) -> Int {
         let volatility = VolatilityScore.volatility(position: position)
         let surround = SurroundScore.kingSurroundedness(position: position)
         let capSeq = CaptureSequenceEval.maxSequenceLength(position: position, player: player)
@@ -155,31 +145,21 @@ enum TacticalAggregator {
         let dynamic = DynamicEval.evaluate(position: position, player: player, moveCount: 0)
         let adaptive = AdaptiveEval.evaluate(position: position, player: player)
         let phaseEval = GamePhaseEvaluator.evaluateForPhase(position: position, player: player)
+        let crossfire = CrossfireDetector.crossfireCount(position: position)
 
-        // Surround favors attacker
-        let surroundAdj: Int
-        switch player {
-        case .attacker:
-            surroundAdj = surround
-        case .defender:
-            surroundAdj = -surround
-        }
+        let surroundAdj = PerspectiveAdjust.forAttackerPositive(surround, player: player)
+        let emptyAdj = PerspectiveAdjust.forDefenderPositive(emptyNearKing, player: player)
+        let crossfireAdj = PerspectiveAdjust.forAttackerPositive(crossfire, player: player)
 
-        // Empty near king favors defender (escape room)
-        let emptyAdj: Int
-        switch player {
-        case .attacker:
-            emptyAdj = -emptyNearKing
-        case .defender:
-            emptyAdj = emptyNearKing
-        }
-
-        let miscSignal = (surroundAdj / 3 + capSeq + stability / 3 + emptyAdj / 3
+        return (surroundAdj / 3 + capSeq + stability / 3 + emptyAdj / 3
                          - staleRisk / 5 + zugzwang / 3 + nullMove / 5
                          - horizon / 5 + crossfireAdj + dynamic / 5 + adaptive / 5
                          + phaseEval / 5 + volatility / 5) / 9
+    }
 
-        // === Additional orphaned pressure/safety modules ===
+    // MARK: - Extra tactical signals
+
+    private static func extraTacticalSignal(position: Position, player: Player) -> Int {
         let rowPress = RowPressure.evaluate(position: position, for: player)
         let colPress = ColumnPressure.evaluate(position: position, for: player)
         let safetyMargin = SafetyMargin.kingMargin(position: position)
@@ -189,13 +169,7 @@ enum TacticalAggregator {
         let blockadeStr = BlockadeDetector.blockadeStrength(position: position)
         let encircleAdj = EncirclementDetector.adjacentAttackers(position: position)
 
-        let safetyMarginAdj: Int
-        switch player {
-        case .attacker:
-            safetyMarginAdj = -safetyMargin
-        case .defender:
-            safetyMarginAdj = safetyMargin
-        }
+        let safetyMarginAdj = PerspectiveAdjust.forDefenderPositive(safetyMargin, player: player)
 
         // Encirclement favors attacker
         let encircleSignal: Int
@@ -206,18 +180,17 @@ enum TacticalAggregator {
             encircleSignal = -encircleAdj - blockadeStr / 2
         }
 
-        let extraTactical = (rowPress.count + colPress.count + safetyMarginAdj / 3
+        return (rowPress.count + colPress.count + safetyMarginAdj / 3
                             + formBreakerCount + encircleSignal / 2 + Int(progress * 2)) / 6
+    }
 
-        // === Capture risk + piece safety ===
+    // MARK: - Capture risk + piece safety
+
+    private static func captureRiskSignal(position: Position, player: Player) -> (score: Int, penalty: Int) {
         let captureRiskEntries = CaptureRisk.assess(position: position, for: player)
         let captureRiskScore = captureRiskEntries.count
         let leastSafe = PieceSafetyScore.leastSafePiece(position: position, player: player)
         let safetyPenalty = leastSafe != nil ? PieceSafetyScore.safetyScore(row: leastSafe!.row, col: leastSafe!.col, position: position) : 0
-
-        // === Combine all tactical signals ===
-        return (pressureSignal + tempoSignal + tacticalSignal + safetySignal
-               + progressSignal + detectionSignal / 3 + miscSignal + extraTactical / 3
-               - captureRiskScore / 3 + safetyPenalty / 5) / 6
+        return (score: captureRiskScore, penalty: safetyPenalty)
     }
 }

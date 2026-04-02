@@ -4,6 +4,17 @@ struct AppComponent {
     static func render(state: GameState) -> [AnyNode] {
         var children: [AnyNode] = []
 
+        let skipLink = Element<AnyHTMLContext>(
+            tag: "a",
+            attributes: [
+                Attribute(name: "href", value: "#toolbar"),
+                Attribute(name: "class", value: "sr-only skip-link"),
+                Attribute(name: "tabindex", value: "0")
+            ],
+            children: [AnyNode(Text("Skip to game controls"))]
+        )
+        children.append(AnyNode(skipLink))
+
         children.append(contentsOf: StatusComponent.render(state: state))
 
         if state.showP2PConnect {
@@ -33,6 +44,7 @@ struct AppComponent {
                 attributes: [
                     Attribute(name: "class", value: "rules-overlay"),
                     Attribute(name: "role", value: "dialog"),
+                    Attribute(name: "aria-modal", value: "true"),
                     Attribute(name: "aria-label", value: "Game rules")
                 ],
                 children: overlayChildren
@@ -79,7 +91,8 @@ struct AppComponent {
             attributes: [
                 Attribute(name: "class", value: "btn btn-new-game"),
                 Attribute(name: "data-action", value: "new-game"),
-                Attribute(name: "aria-label", value: "Start new game")
+                Attribute(name: "aria-label", value: "Start new game"),
+                Attribute(name: "data-confirm", value: "Start a new game? Current progress will be lost.")
             ],
             children: [AnyNode(Text("New Game"))]
         )
@@ -174,6 +187,7 @@ struct AppComponent {
         let toolbar = Element<AnyHTMLContext>(
             tag: "div",
             attributes: [
+                Attribute(name: "id", value: "toolbar"),
                 Attribute(name: "class", value: "toolbar"),
                 Attribute(name: "role", value: "toolbar"),
                 Attribute(name: "aria-label", value: "Game controls")

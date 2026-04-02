@@ -73,7 +73,7 @@ struct VikingColors {
     static let backgroundBoard = walnutDark
     static let textPrimary = boneWhite
     static let textSecondary = hackSilver
-    static let textMuted = ironGrey
+    static let textMuted = "#a09a94"
     static let accentPrimary = meadGold
     static let accentSecondary = agedGold
     static let successColor = verdigris
