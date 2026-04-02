@@ -67,9 +67,7 @@ struct BoardComponent {
         if let lastMove = state.lastMove {
             overlays.append(contentsOf: MoveTrail.render(move: lastMove))
         }
-        for square in state.capturedSquares {
-            overlays.append(contentsOf: CaptureEffect.render(row: square.row, col: square.col))
-        }
+        // CaptureEffects are now rendered inside individual square cells
         return overlays
     }
 
@@ -78,6 +76,7 @@ struct BoardComponent {
         let squareType = Position.squareType(row: row, col: col)
         let isSelected = state.selectedSquare?.row == row && state.selectedSquare?.col == col
         let isLegalMove = state.legalMovesForSelected.contains { $0.toRow == row && $0.toCol == col }
+        let isCaptured = state.capturedSquares.contains { $0.row == row && $0.col == col }
 
         var classes = ["square"]
 
@@ -108,7 +107,7 @@ struct BoardComponent {
         }
 
         let ariaLabel = squareAriaLabel(piece: piece, row: row, col: col)
-        let children: [AnyNode]
+        var children: [AnyNode]
         if let piece {
             children = PieceView.render(piece: piece)
         } else {
@@ -120,6 +119,11 @@ struct BoardComponent {
             case .regular:
                 children = []
             }
+        }
+
+        // Add capture burst effect inside the captured cell
+        if isCaptured {
+            children.append(contentsOf: CaptureEffect.render(row: row, col: col))
         }
 
         return Element<AnyHTMLContext>(

@@ -130,15 +130,16 @@ struct VikingStyleSheet {
 
     .board {
         display: grid;
-        grid-template-columns: repeat(11, 1fr);
+        grid-template-columns: auto repeat(11, 1fr);
+        grid-template-rows: auto repeat(11, 1fr);
         gap: 1px;
-        max-width: 550px;
+        max-width: 580px;
         width: 100%;
-        aspect-ratio: 1;
         touch-action: none;
         user-select: none;
         -webkit-user-select: none;
         background: rgba(0, 0, 0, 0.3);
+        position: relative;
     }
 
     .board-row {
@@ -156,8 +157,8 @@ struct VikingStyleSheet {
         position: relative;
         transition: background-color var(--duration-fast) var(--easing),
                     box-shadow var(--duration-fast) var(--easing);
-        min-width: 44px;
-        min-height: 44px;
+        min-width: 0;
+        min-height: 0;
     }
 
     .square:hover {
@@ -210,13 +211,16 @@ struct VikingStyleSheet {
     .selected {
         outline: 2px solid var(--viking-gold-bright);
         outline-offset: -2px;
-        box-shadow: var(--glow-gold-strong);
         z-index: 1;
     }
 
     .glow {
         box-shadow: 0 0 16px 6px var(--glow-gold);
         z-index: 1;
+    }
+
+    .selected.glow {
+        box-shadow: var(--glow-gold-strong);
     }
 
     .legal-move {
@@ -523,30 +527,42 @@ struct VikingStyleSheet {
         align-items: center;
         justify-content: center;
         font-family: var(--font-mono);
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         color: var(--text-muted);
         user-select: none;
         letter-spacing: 0.05em;
+        min-width: 20px;
+        padding: 0 2px;
     }
 
     .coord-row {
         display: contents;
     }
 
+    /* --- Ornament SVGs in special squares --- */
+    .corner-valknut, .throne-helm {
+        width: 50%;
+        height: 50%;
+        opacity: 0.6;
+    }
+
     /* --- Move Trail Overlay --- */
     .move-trail {
         position: absolute;
-        inset: 0;
         pointer-events: none;
         opacity: 0.5;
         animation: trail-fade 0.2s ease-in forwards;
+        /* Positioned by grid placement to cover just the 11x11 square area */
+        grid-column: 2 / -1;
+        grid-row: 2 / -1;
+        z-index: 5;
     }
 
     /* --- Capture Effect --- */
     .capture-effect {
-        position: absolute;
-        inset: 0;
         pointer-events: none;
+        position: relative;
+        z-index: 5;
     }
 
     .particle {
@@ -556,7 +572,13 @@ struct VikingStyleSheet {
         border-radius: 50%;
         background: var(--viking-gold);
         animation: particle-burst 0.5s ease-out forwards;
+        top: 50%;
+        left: 50%;
     }
+    .particle-0 { --dx: -12px; --dy: -12px; }
+    .particle-1 { --dx: 12px; --dy: -12px; }
+    .particle-2 { --dx: -12px; --dy: 12px; }
+    .particle-3 { --dx: 12px; --dy: 12px; }
 
     /* --- Eval Bar --- */
     .eval-bar {
@@ -801,8 +823,8 @@ struct VikingStyleSheet {
     }
 
     @keyframes particle-burst {
-        0% { transform: scale(1); opacity: 1; }
-        100% { transform: scale(0); opacity: 0; }
+        0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        100% { transform: translate(calc(-50% + var(--dx, 0px)), calc(-50% + var(--dy, 0px))) scale(0); opacity: 0; }
     }
 
     @keyframes trail-fade {
@@ -849,6 +871,7 @@ struct VikingStyleSheet {
 
         .board {
             max-width: 100vw;
+            gap: 0;
         }
 
         .game-over-text {

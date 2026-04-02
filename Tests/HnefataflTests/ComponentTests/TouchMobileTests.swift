@@ -9,10 +9,12 @@ struct TouchAndMobileTests {
         #expect(GameStyleSheet.css.contains("touch-action"))
     }
 
-    @Test("CSS contains min tap target size for squares")
+    @Test("CSS contains tap target sizing for interactive elements")
     func minTapTargetSize() {
-        #expect(GameStyleSheet.css.contains("min-width: 44px"))
+        // Buttons maintain 44px min-height for WCAG tap targets
         #expect(GameStyleSheet.css.contains("min-height: 44px"))
+        // Squares use grid-based responsive sizing (no hardcoded min-width)
+        // to prevent overflow on mobile viewports
     }
 
     @Test("CSS contains mobile toolbar layout")
