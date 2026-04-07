@@ -158,27 +158,33 @@ private func reduceFlipBoard(state: GameState) -> GameState {
 }
 
 private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameState {
-    guard let piece = state.game.position.pieceAt(row: row, col: col) else {
-        return GameState(
-            game: state.game,
-            selectedSquare: nil,
-            legalMovesForSelected: [],
-            attackersCaptured: state.attackersCaptured,
-            defendersCaptured: state.defendersCaptured,
-            undoStack: state.undoStack,
-            aiMode: state.aiMode,
-            muted: state.muted,
-            captureHistory: state.captureHistory,
-            aiDifficulty: state.aiDifficulty,
+    let deselected = GameState(
+        game: state.game,
+        selectedSquare: nil,
+        legalMovesForSelected: [],
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
         aiPersonality: state.aiPersonality,
-            boardFlipped: state.boardFlipped,
-            showRules: state.showRules,
-            replayStep: state.replayStep,
-            showCoordinates: state.showCoordinates,
-            selectedVariant: state.selectedVariant,
-            p2pSession: state.p2pSession,
-            showP2PConnect: state.showP2PConnect
-        )
+        boardFlipped: state.boardFlipped,
+        showRules: state.showRules,
+        replayStep: state.replayStep,
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
+    )
+
+    guard let piece = state.game.position.pieceAt(row: row, col: col) else {
+        return deselected
+    }
+
+    if let sel = state.selectedSquare, sel.row == row, sel.col == col {
+        return deselected
     }
 
     let belongsToCurrentPlayer: Bool
@@ -187,7 +193,7 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
     case .defender: belongsToCurrentPlayer = piece.isDefenderSide
     }
 
-    guard belongsToCurrentPlayer else { return state }
+    guard belongsToCurrentPlayer else { return deselected }
 
     let moves = state.game.position.legalMoves(forPieceAtRow: row, col: col)
     return GameState(
