@@ -1,3 +1,5 @@
+import LINKER
+
 struct GameState: Equatable {
     let game: Game
     let selectedSquare: (row: Int, col: Int)?
@@ -23,7 +25,7 @@ struct GameState: Equatable {
     let selectedVariant: SelectedVariant
     let aiEvalScore: Int?
     let aiSearchDepth: Int?
-    let p2pSession: P2PSessionState?
+    let p2pSession: PeerSessionState?
     let showP2PConnect: Bool
 
     init() {
@@ -80,7 +82,7 @@ struct GameState: Equatable {
         selectedVariant: SelectedVariant = .copenhagen,
         aiEvalScore: Int? = nil,
         aiSearchDepth: Int? = nil,
-        p2pSession: P2PSessionState? = nil,
+        p2pSession: PeerSessionState? = nil,
         showP2PConnect: Bool = false
     ) {
         self.game = game

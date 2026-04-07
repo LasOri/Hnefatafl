@@ -61,7 +61,7 @@ struct P2PConnectComponent {
 
     // MARK: - Connection Status
 
-    private static func connectionStatusScreen(session: P2PSessionState, state: GameState) -> [AnyNode] {
+    private static func connectionStatusScreen(session: PeerSessionState, state: GameState) -> [AnyNode] {
         let roleText = session.isHost ? "Hosting as Defender" : "Joined as Attacker"
         let roleEl = Element<AnyHTMLContext>(
             tag: "div",

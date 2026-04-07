@@ -5,7 +5,7 @@ import LINKER
 @Suite("P2P Connection State Reducer Tests")
 struct P2PConnectionStateTests {
 
-    private func stateWith(session: P2PSessionState) -> GameState {
+    private func stateWith(session: PeerSessionState) -> GameState {
         GameState(
             game: Game(),
             selectedSquare: nil,
@@ -16,7 +16,7 @@ struct P2PConnectionStateTests {
 
     @Test("peerConnected sets connected state")
     func peerConnected_setsConnected() {
-        let session = P2PSessionState(isHost: true, connectionState: .connecting)
+        let session = PeerSessionState(isHost: true, connectionState: .connecting)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .peerConnected(peerId: "remote-peer"))
         #expect(result.p2pSession?.connectionState == .connected)
@@ -24,7 +24,7 @@ struct P2PConnectionStateTests {
 
     @Test("peerConnected stores remote peerId")
     func peerConnected_storesPeerId() {
-        let session = P2PSessionState(isHost: true, connectionState: .connecting)
+        let session = PeerSessionState(isHost: true, connectionState: .connecting)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .peerConnected(peerId: "remote-peer"))
         #expect(result.p2pSession?.remotePeerId == "remote-peer")
@@ -32,7 +32,7 @@ struct P2PConnectionStateTests {
 
     @Test("peerDisconnected sets disconnected state")
     func peerDisconnected_setsDisconnected() {
-        let session = P2PSessionState(isHost: true, remotePeerId: "p", connectionState: .connected)
+        let session = PeerSessionState(isHost: true, remotePeerId: "p", connectionState: .connected)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .peerDisconnected)
         #expect(result.p2pSession?.connectionState == .disconnected)
@@ -54,11 +54,11 @@ struct P2PConnectionStateTests {
 
     @Test("peerConnected preserves other session fields")
     func peerConnected_preservesFields() {
-        let session = P2PSessionState(isHost: true, localSide: .defender, connectionState: .connecting, variant: .tablut)
+        let session = PeerSessionState(isHost: true, localRole: Player.defender.roleString, connectionState: .connecting, variant: SelectedVariant.tablut.rawValue)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .peerConnected(peerId: "p"))
         #expect(result.p2pSession?.isHost == true)
-        #expect(result.p2pSession?.localSide == .defender)
-        #expect(result.p2pSession?.variant == .tablut)
+        #expect(result.p2pSession?.localRole == Player.defender.roleString)
+        #expect(result.p2pSession?.variant == SelectedVariant.tablut.rawValue)
     }
 }

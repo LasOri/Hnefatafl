@@ -16,7 +16,9 @@ func p2pGameMiddleware() -> MiddlewareHandler<GameState> {
             if case .makeMove(let move) = gameAction {
                 if let state = getState(), let session = state.p2pSession {
                     // Only allow move if it's local player's turn
-                    guard isLocalPlayerTurn(state: state) else { return }
+                    guard isLocalPlayerTurn(state: state) else {
+                        return
+                    }
 
                     // Forward the action
                     next(action)
@@ -29,8 +31,9 @@ func p2pGameMiddleware() -> MiddlewareHandler<GameState> {
                         "toRow": .int(move.toRow),
                         "toCol": .int(move.toCol)
                     ])
-                    let msg = P2PMessage(type: .move, payload: movePayload, sequence: messageSequence)
-                    dispatch(AnyAction(P2PAction.send(key: session.remotePeerId ?? "default", data: msg.serialize())))
+                    let msg = PeerMessage(type: .move, payload: movePayload, sequence: messageSequence)
+                    let serialized = msg.serialize()
+                    dispatch(AnyAction(P2PAction.send(key: session.remotePeerId ?? "default", data: serialized)))
                     return
                 }
             }
@@ -38,11 +41,36 @@ func p2pGameMiddleware() -> MiddlewareHandler<GameState> {
             return
         }
 
-        // Check if this is a P2PAction.messageReceived — parse and dispatch game action
+        // Check if this is a P2PAction from LINKER — translate to game actions
         if let p2pAction = action.as(P2PAction.self) {
-            if case .messageReceived(_, let data) = p2pAction {
+            switch p2pAction {
+            case .messageReceived(let key, let data):
                 next(action)
                 handleIncomingMessage(data, dispatch: dispatch)
+                return
+            case .initialized(let endpointId):
+                // Update the session's localEndpointId
+                if let state = getState(), let session = state.p2pSession {
+                    let updated = session.withEndpointId(endpointId)
+                    dispatch(AnyAction(P2PGameAction.sessionUpdated(updated)))
+                    // If joiner, now connect to the remote peer (endpoint must be ready first)
+                    if !session.isHost, let remotePeerId = session.remotePeerId, !remotePeerId.isEmpty {
+                        dispatch(AnyAction(P2PAction.connect(peerId: remotePeerId, key: remotePeerId)))
+                    }
+                }
+                next(action)
+                return
+            case .connectionStateChanged(let key, let connState):
+                // Translate LINKER connection state to P2PGameAction
+                if case .connected = connState {
+                    dispatch(AnyAction(P2PGameAction.peerConnected(peerId: key)))
+                } else if case .disconnected = connState {
+                    dispatch(AnyAction(P2PGameAction.peerDisconnected))
+                }
+                next(action)
+                return
+            default:
+                next(action)
                 return
             }
         }
@@ -53,7 +81,8 @@ func p2pGameMiddleware() -> MiddlewareHandler<GameState> {
 
 private func isLocalPlayerTurn(state: GameState) -> Bool {
     guard let session = state.p2pSession else { return true }
-    guard let localSide = session.localSide else { return false }
+    guard let localRole = session.localRole,
+          let localSide = Player.fromRole(localRole) else { return false }
     return state.game.currentPlayer == localSide
 }
 
@@ -70,7 +99,8 @@ private func handleP2PGameAction(
 
     case .joinGame(let peerId):
         dispatch(AnyAction(P2PAction.initialize))
-        dispatch(AnyAction(P2PAction.connect(peerId: peerId, key: peerId)))
+        // Note: P2PAction.connect is dispatched after endpoint initialization
+        // (in the .initialized handler above) to ensure the endpoint is ready
         break
 
     case .leaveGame:
@@ -82,12 +112,12 @@ private func handleP2PGameAction(
         // Send handshake
         if let state = getState(), let session = state.p2pSession {
             sequence += 1
-            let handshake = P2PHandshake(
-                protocolVersion: P2PHandshake.currentVersion,
-                variant: session.variant.rawValue,
+            let handshake = PeerHandshake(
+                protocolVersion: PeerHandshake.currentVersion,
+                variant: session.variant ?? "unknown",
                 playerName: nil
             )
-            let msg = P2PMessage(type: .handshake, payload: handshake.toJson(), sequence: sequence)
+            let msg = PeerMessage(type: .handshake, payload: handshake.toJson(), sequence: sequence)
             dispatch(AnyAction(P2PAction.send(key: session.remotePeerId ?? "default", data: msg.serialize())))
         }
 
@@ -97,14 +127,18 @@ private func handleP2PGameAction(
 }
 
 private func handleIncomingMessage(_ data: String, dispatch: @escaping (AnyAction) -> Void) {
-    guard let msg = P2PMessage.deserialize(data) else { return }
+    guard let msg = PeerMessage.deserialize(data) else {
+        return
+    }
 
     switch msg.type {
     case .move:
         guard let fromRow = msg.payload["fromRow"]?.intValue,
               let fromCol = msg.payload["fromCol"]?.intValue,
               let toRow = msg.payload["toRow"]?.intValue,
-              let toCol = msg.payload["toCol"]?.intValue else { return }
+              let toCol = msg.payload["toCol"]?.intValue else {
+            return
+        }
         guard fromRow >= 0, fromRow < Position.boardSize,
               fromCol >= 0, fromCol < Position.boardSize,
               toRow >= 0, toRow < Position.boardSize,
@@ -113,7 +147,7 @@ private func handleIncomingMessage(_ data: String, dispatch: @escaping (AnyActio
         dispatch(AnyAction(P2PGameAction.remoteMove(move)))
 
     case .handshake:
-        if let handshake = P2PHandshake.fromJson(msg.payload) {
+        if let handshake = PeerHandshake.fromJson(msg.payload) {
             dispatch(AnyAction(P2PGameAction.handshakeReceived(handshake)))
         }
 

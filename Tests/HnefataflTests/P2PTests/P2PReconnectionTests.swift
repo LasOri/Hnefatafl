@@ -7,7 +7,7 @@ struct P2PReconnectionTests {
 
     @Test("peerDisconnected sets disconnected state")
     func disconnect_setsState() {
-        let session = P2PSessionState(isHost: true, remotePeerId: "p", connectionState: .connected)
+        let session = PeerSessionState(isHost: true, remotePeerId: "p", connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -20,7 +20,7 @@ struct P2PReconnectionTests {
 
     @Test("reconnect sets connecting state")
     func reconnect_setsConnecting() {
-        let session = P2PSessionState(isHost: false, localSide: .attacker, connectionState: .disconnected)
+        let session = PeerSessionState(isHost: false, localRole: Player.attacker.roleString, connectionState: .disconnected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -34,7 +34,7 @@ struct P2PReconnectionTests {
 
     @Test("session preserved after disconnect")
     func session_preservedAfterDisconnect() {
-        let session = P2PSessionState(isHost: true, localSide: .defender, remotePeerId: "p", connectionState: .connected, variant: .tablut)
+        let session = PeerSessionState(isHost: true, localRole: Player.defender.roleString, remotePeerId: "p", connectionState: .connected, variant: SelectedVariant.tablut.rawValue)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -43,13 +43,13 @@ struct P2PReconnectionTests {
         )
         let result = p2pGameReducer(state: state, action: .peerDisconnected)
         #expect(result.p2pSession?.isHost == true)
-        #expect(result.p2pSession?.localSide == .defender)
-        #expect(result.p2pSession?.variant == .tablut)
+        #expect(result.p2pSession?.localRole == Player.defender.roleString)
+        #expect(result.p2pSession?.variant == SelectedVariant.tablut.rawValue)
     }
 
     @Test("game state preserved during reconnect")
     func gameState_preservedDuringReconnect() {
-        let session = P2PSessionState(isHost: true, connectionState: .connected)
+        let session = PeerSessionState(isHost: true, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -73,7 +73,7 @@ struct P2PReconnectionTests {
 
     @Test("leaveGame after disconnect clears session")
     func leaveAfterDisconnect_clearsSession() {
-        let session = P2PSessionState(isHost: true, connectionState: .disconnected)
+        let session = PeerSessionState(isHost: true, connectionState: .disconnected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,

@@ -40,7 +40,7 @@ struct P2PStateSyncTests {
         #expect(recovered == payload)
     }
 
-    @Test("syncState inside P2PMessage round-trips")
+    @Test("syncState inside PeerMessage round-trips")
     func syncInMessage_roundTrips() {
         let payload = GameStateSyncPayload(
             cells: ["attacker"],
@@ -48,9 +48,9 @@ struct P2PStateSyncTests {
             moveHistory: [],
             variant: "copenhagen"
         )
-        let msg = P2PMessage(type: .stateSync, payload: payload.toJson(), sequence: 5)
+        let msg = PeerMessage(type: .stateSync, payload: payload.toJson(), sequence: 5)
         let data = msg.serialize()
-        let recovered = P2PMessage.deserialize(data)
+        let recovered = PeerMessage.deserialize(data)
         #expect(recovered?.type == .stateSync)
         let recoveredPayload = GameStateSyncPayload.fromJson(recovered!.payload)
         #expect(recoveredPayload == payload)
@@ -58,7 +58,7 @@ struct P2PStateSyncTests {
 
     @Test("syncState reducer is no-op for now")
     func syncReducer_noop() {
-        let session = P2PSessionState(isHost: false, connectionState: .connected)
+        let session = PeerSessionState(isHost: false, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,

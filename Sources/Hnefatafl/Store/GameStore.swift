@@ -16,7 +16,9 @@ func createGameStore() -> Store<GameState> {
 }
 
 func createP2PGameStore() -> Store<GameState> {
-    Store<GameState>(
+    let linkerP2P = P2PMiddleware()
+
+    return Store<GameState>(
         initialState: GameState(),
         reducer: { state, anyAction in
             if let gameAction = anyAction.as(GameAction.self) {
@@ -27,6 +29,13 @@ func createP2PGameStore() -> Store<GameState> {
             }
             return state
         },
-        middlewares: [p2pGameMiddleware()]
+        middlewares: [
+            // LINKER P2P middleware handles IrohBridge lifecycle (spawn, connect, send)
+            { action, getState, dispatch, next in
+                linkerP2P.handle(action: action, getState: { nil }, dispatch: dispatch, next: next)
+            },
+            // Hnefatafl P2P game middleware translates P2PActions ↔ P2PGameActions
+            p2pGameMiddleware()
+        ]
     )
 }

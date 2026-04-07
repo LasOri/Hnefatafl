@@ -14,6 +14,8 @@ func p2pGameReducer(state: GameState, action: P2PGameAction) -> GameState {
         return reduceRemoteMove(state: state, move: move)
     case .syncState:
         return state
+    case .sessionUpdated(let session):
+        return reduceSessionUpdated(state: state, session: session)
     case .peerConnected(let peerId):
         return reducePeerConnected(state: state, peerId: peerId)
     case .peerDisconnected:
@@ -28,11 +30,11 @@ func p2pGameReducer(state: GameState, action: P2PGameAction) -> GameState {
 }
 
 private func reduceHostGame(state: GameState, variant: SelectedVariant) -> GameState {
-    let session = P2PSessionState(
+    let session = PeerSessionState(
         isHost: true,
-        localSide: .defender,
+        localRole: Player.defender.roleString,
         connectionState: .connecting,
-        variant: variant
+        variant: variant.rawValue
     )
     let startPos = variant.startPosition
     let newGame = Game(position: startPos, currentPlayer: .attacker, moveHistory: [], positionHistory: [startPos])
@@ -46,14 +48,15 @@ private func reduceHostGame(state: GameState, variant: SelectedVariant) -> GameS
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: variant,
-        p2pSession: session
+        p2pSession: session,
+        showP2PConnect: true
     )
 }
 
 private func reduceJoinGame(state: GameState, peerId: String) -> GameState {
-    let session = P2PSessionState(
+    let session = PeerSessionState(
         isHost: false,
-        localSide: .attacker,
+        localRole: Player.attacker.roleString,
         remotePeerId: peerId,
         connectionState: .connecting
     )
@@ -73,7 +76,30 @@ private func reduceJoinGame(state: GameState, peerId: String) -> GameState {
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: session
+        p2pSession: session,
+        showP2PConnect: true
+    )
+}
+
+private func reduceSessionUpdated(state: GameState, session: PeerSessionState) -> GameState {
+    GameState(
+        game: state.game,
+        selectedSquare: state.selectedSquare,
+        legalMovesForSelected: state.legalMovesForSelected,
+        attackersCaptured: state.attackersCaptured,
+        defendersCaptured: state.defendersCaptured,
+        undoStack: state.undoStack,
+        focusedSquare: state.focusedSquare,
+        aiMode: state.aiMode,
+        muted: state.muted,
+        captureHistory: state.captureHistory,
+        aiDifficulty: state.aiDifficulty,
+        aiPersonality: state.aiPersonality,
+        boardFlipped: state.boardFlipped,
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: session,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -94,7 +120,8 @@ private func reduceLeaveGame(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: nil
+        p2pSession: nil,
+        showP2PConnect: true
     )
 }
 
@@ -116,7 +143,8 @@ private func reduceAssignSide(state: GameState, localSide: Player) -> GameState 
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: session.withLocalSide(localSide)
+        p2pSession: session.withLocalRole(localSide.roleString),
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -124,12 +152,9 @@ private func reduceRemoteMove(state: GameState, move: Move) -> GameState {
     guard let session = state.p2pSession else { return state }
 
     // Validate: it must be the remote player's turn
-    let remoteSide: Player
-    switch session.localSide {
-    case .attacker: remoteSide = .defender
-    case .defender: remoteSide = .attacker
-    case nil: return state
-    }
+    guard let localRole = session.localRole,
+          let localSide = Player.fromRole(localRole) else { return state }
+    let remoteSide = localSide.opponent
     guard state.game.currentPlayer == remoteSide else { return state }
 
     // Validate move coordinates are in bounds
@@ -174,7 +199,8 @@ private func reduceRemoteMove(state: GameState, move: Move) -> GameState {
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: session.withReceivedSequence(session.lastReceivedSequence + 1)
+        p2pSession: session.withReceivedSequence(session.lastReceivedSequence + 1),
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -197,7 +223,8 @@ private func reducePeerConnected(state: GameState, peerId: String) -> GameState 
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: updated
+        p2pSession: updated,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -219,7 +246,8 @@ private func reducePeerDisconnected(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showCoordinates: state.showCoordinates,
         selectedVariant: state.selectedVariant,
-        p2pSession: session.withConnectionState(.disconnected)
+        p2pSession: session.withConnectionState(.disconnected),
+        showP2PConnect: state.showP2PConnect
     )
 }
 

@@ -17,7 +17,7 @@ struct P2PErrorHandlingTests {
 
     @Test("connectionError does not modify state")
     func connectionError_noStateChange() {
-        let session = P2PSessionState(isHost: true, connectionState: .connected)
+        let session = PeerSessionState(isHost: true, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -41,7 +41,7 @@ struct P2PErrorHandlingTests {
 
     @Test("remoteMove with nil localSide is rejected")
     func remoteMove_nilLocalSide_rejected() {
-        let session = P2PSessionState(isHost: true, localSide: nil, connectionState: .connected)
+        let session = PeerSessionState(isHost: true, localRole: nil, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,

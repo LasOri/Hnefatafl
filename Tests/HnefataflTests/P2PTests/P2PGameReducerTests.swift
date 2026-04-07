@@ -14,12 +14,12 @@ struct P2PGameReducerTests {
         remotePeerId: String? = "peer-123",
         variant: SelectedVariant = .copenhagen
     ) -> GameState {
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: isHost,
-            localSide: localSide,
+            localRole: localSide?.roleString,
             remotePeerId: remotePeerId,
             connectionState: connectionState,
-            variant: variant
+            variant: variant.rawValue
         )
         return GameState(
             game: Game(),
@@ -42,7 +42,7 @@ struct P2PGameReducerTests {
     func hostGame_localSideDefender() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .hostGame(variant: .copenhagen))
-        #expect(result.p2pSession?.localSide == .defender)
+        #expect(result.p2pSession?.localRole == Player.defender.roleString)
     }
 
     @Test("hostGame sets connectionState to connecting")
@@ -64,7 +64,7 @@ struct P2PGameReducerTests {
     func hostGame_usesVariant() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .hostGame(variant: .tablut))
-        #expect(result.p2pSession?.variant == .tablut)
+        #expect(result.p2pSession?.variant == SelectedVariant.tablut.rawValue)
         #expect(result.selectedVariant == .tablut)
     }
 
@@ -102,7 +102,7 @@ struct P2PGameReducerTests {
     func joinGame_localSideAttacker() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .joinGame(peerId: "remote-42"))
-        #expect(result.p2pSession?.localSide == .attacker)
+        #expect(result.p2pSession?.localRole == Player.attacker.roleString)
     }
 
     @Test("joinGame sets connectionState to connecting")
@@ -149,7 +149,7 @@ struct P2PGameReducerTests {
     func assignSide_updatesLocalSide() {
         let state = stateWithP2PSession(localSide: .defender)
         let result = p2pGameReducer(state: state, action: .assignSide(localSide: .attacker))
-        #expect(result.p2pSession?.localSide == .attacker)
+        #expect(result.p2pSession?.localRole == Player.attacker.roleString)
     }
 
     @Test("assignSide returns unchanged state when no session")
@@ -166,7 +166,7 @@ struct P2PGameReducerTests {
         #expect(result.p2pSession?.isHost == true)
         #expect(result.p2pSession?.connectionState == .connected)
         #expect(result.p2pSession?.remotePeerId == "p1")
-        #expect(result.p2pSession?.variant == .tablut)
+        #expect(result.p2pSession?.variant == SelectedVariant.tablut.rawValue)
     }
 
     // MARK: - remoteMove (legal move)
@@ -257,9 +257,9 @@ struct P2PGameReducerTests {
             .placing(.attacker, row: 5, col: 0)
             .build()
         let game = Game(position: pos, currentPlayer: .attacker, moveHistory: [])
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: true,
-            localSide: .defender,
+            localRole: Player.defender.roleString,
             connectionState: .connected
         )
         let state = GameState(
@@ -344,7 +344,7 @@ struct P2PGameReducerTests {
     @Test("handshakeReceived returns state unchanged")
     func handshakeReceived_passthrough() {
         let state = stateWithP2PSession()
-        let handshake = P2PHandshake(protocolVersion: 1, variant: "copenhagen", playerName: nil)
+        let handshake = PeerHandshake(protocolVersion: 1, variant: "copenhagen", playerName: nil)
         let result = p2pGameReducer(state: state, action: .handshakeReceived(handshake))
         #expect(result == state)
     }

@@ -14,9 +14,9 @@ struct P2PGameMiddlewareTests {
         connectionState: P2PConnectionState = .connected,
         remotePeerId: String? = "peer-1"
     ) -> GameState {
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: isHost,
-            localSide: localSide,
+            localRole: localSide?.roleString,
             remotePeerId: remotePeerId,
             connectionState: connectionState
         )
@@ -101,9 +101,9 @@ struct P2PGameMiddlewareTests {
         #expect(result.lastMove == nil)
     }
 
-    // MARK: - P2PMessage serialize/deserialize round-trip
+    // MARK: - PeerMessage serialize/deserialize round-trip
 
-    @Test("P2PMessage move round-trip preserves type and payload")
+    @Test("PeerMessage move round-trip preserves type and payload")
     func messageRoundTrip_move() {
         let payload: Json = .object([
             "fromRow": .int(3),
@@ -111,9 +111,9 @@ struct P2PGameMiddlewareTests {
             "toRow": .int(7),
             "toCol": .int(5)
         ])
-        let msg = P2PMessage(type: .move, payload: payload, sequence: 42)
+        let msg = PeerMessage(type: .move, payload: payload, sequence: 42)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized != nil)
         #expect(deserialized?.type == .move)
         #expect(deserialized?.sequence == 42)
@@ -123,85 +123,85 @@ struct P2PGameMiddlewareTests {
         #expect(deserialized?.payload["toCol"]?.intValue == 5)
     }
 
-    @Test("P2PMessage handshake round-trip preserves payload")
+    @Test("PeerMessage handshake round-trip preserves payload")
     func messageRoundTrip_handshake() {
-        let handshake = P2PHandshake(
-            protocolVersion: P2PHandshake.currentVersion,
+        let handshake = PeerHandshake(
+            protocolVersion: PeerHandshake.currentVersion,
             variant: "copenhagen",
             playerName: "Viking"
         )
-        let msg = P2PMessage(type: .handshake, payload: handshake.toJson(), sequence: 1)
+        let msg = PeerMessage(type: .handshake, payload: handshake.toJson(), sequence: 1)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized != nil)
         #expect(deserialized?.type == .handshake)
         #expect(deserialized?.sequence == 1)
-        let restored = P2PHandshake.fromJson(deserialized!.payload)
-        #expect(restored?.protocolVersion == P2PHandshake.currentVersion)
+        let restored = PeerHandshake.fromJson(deserialized!.payload)
+        #expect(restored?.protocolVersion == PeerHandshake.currentVersion)
         #expect(restored?.variant == "copenhagen")
         #expect(restored?.playerName == "Viking")
     }
 
-    @Test("P2PMessage resign round-trip")
+    @Test("PeerMessage resign round-trip")
     func messageRoundTrip_resign() {
-        let msg = P2PMessage(type: .resign, payload: .null, sequence: 5)
+        let msg = PeerMessage(type: .resign, payload: .null, sequence: 5)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized?.type == .resign)
         #expect(deserialized?.sequence == 5)
     }
 
-    @Test("P2PMessage newGame round-trip")
+    @Test("PeerMessage newGame round-trip")
     func messageRoundTrip_newGame() {
-        let msg = P2PMessage(type: .newGame, payload: .null, sequence: 10)
+        let msg = PeerMessage(type: .newGame, payload: .null, sequence: 10)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized?.type == .newGame)
         #expect(deserialized?.sequence == 10)
     }
 
-    @Test("P2PMessage ping round-trip")
+    @Test("PeerMessage ping round-trip")
     func messageRoundTrip_ping() {
-        let msg = P2PMessage(type: .ping, payload: .null, sequence: 99)
+        let msg = PeerMessage(type: .ping, payload: .null, sequence: 99)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized?.type == .ping)
         #expect(deserialized?.sequence == 99)
     }
 
-    @Test("P2PMessage pong round-trip")
+    @Test("PeerMessage pong round-trip")
     func messageRoundTrip_pong() {
-        let msg = P2PMessage(type: .pong, payload: .null, sequence: 100)
+        let msg = PeerMessage(type: .pong, payload: .null, sequence: 100)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized?.type == .pong)
         #expect(deserialized?.sequence == 100)
     }
 
-    @Test("P2PMessage deserialize returns nil for invalid JSON")
+    @Test("PeerMessage deserialize returns nil for invalid JSON")
     func messageDeserialize_invalidJson() {
-        let result = P2PMessage.deserialize("not valid json {{{")
+        let result = PeerMessage.deserialize("not valid json {{{")
         #expect(result == nil)
     }
 
-    @Test("P2PMessage deserialize returns nil for missing type field")
+    @Test("PeerMessage deserialize returns nil for missing type field")
     func messageDeserialize_missingType() {
         let json = "{\"payload\":null,\"sequence\":1}"
-        let result = P2PMessage.deserialize(json)
+        let result = PeerMessage.deserialize(json)
         #expect(result == nil)
     }
 
-    @Test("P2PMessage deserialize returns nil for unknown type")
+    @Test("PeerMessage deserialize returns nil for unknown type")
     func messageDeserialize_unknownType() {
         let json = "{\"type\":\"unknown_action\",\"payload\":null,\"sequence\":1}"
-        let result = P2PMessage.deserialize(json)
+        let result = PeerMessage.deserialize(json)
         #expect(result == nil)
     }
 
-    @Test("P2PMessage deserialize returns nil for missing sequence")
+    @Test("PeerMessage deserialize returns nil for missing sequence")
     func messageDeserialize_missingSequence() {
         let json = "{\"type\":\"move\",\"payload\":null}"
-        let result = P2PMessage.deserialize(json)
+        let result = PeerMessage.deserialize(json)
         #expect(result == nil)
     }
 
@@ -215,9 +215,9 @@ struct P2PGameMiddlewareTests {
             "toRow": .int(0),
             "toCol": .int(1)
         ])
-        let msg = P2PMessage(type: .move, payload: payload, sequence: 1)
+        let msg = PeerMessage(type: .move, payload: payload, sequence: 1)
         let serialized = msg.serialize()
-        let parsed = P2PMessage.deserialize(serialized)
+        let parsed = PeerMessage.deserialize(serialized)
         #expect(parsed != nil)
 
         // Extract move fields the same way handleIncomingMessage does
@@ -242,28 +242,28 @@ struct P2PGameMiddlewareTests {
             "fromCol": .int(3)
             // toRow and toCol missing
         ])
-        let msg = P2PMessage(type: .move, payload: payload, sequence: 1)
+        let msg = PeerMessage(type: .move, payload: payload, sequence: 1)
         let serialized = msg.serialize()
-        let parsed = P2PMessage.deserialize(serialized)
+        let parsed = PeerMessage.deserialize(serialized)
         #expect(parsed != nil)
         // Missing fields → nil
         #expect(parsed?.payload["toRow"]?.intValue == nil)
         #expect(parsed?.payload["toCol"]?.intValue == nil)
     }
 
-    // MARK: - P2PHandshake round-trip via message
+    // MARK: - PeerHandshake round-trip via message
 
     @Test("Handshake without playerName round-trips correctly")
     func handshakeRoundTrip_noName() {
-        let handshake = P2PHandshake(
+        let handshake = PeerHandshake(
             protocolVersion: 1,
             variant: "tablut",
             playerName: nil
         )
-        let msg = P2PMessage(type: .handshake, payload: handshake.toJson(), sequence: 2)
+        let msg = PeerMessage(type: .handshake, payload: handshake.toJson(), sequence: 2)
         let serialized = msg.serialize()
-        let parsed = P2PMessage.deserialize(serialized)
-        let restored = P2PHandshake.fromJson(parsed!.payload)
+        let parsed = PeerMessage.deserialize(serialized)
+        let restored = PeerHandshake.fromJson(parsed!.payload)
         #expect(restored != nil)
         #expect(restored?.protocolVersion == 1)
         #expect(restored?.variant == "tablut")
@@ -273,22 +273,22 @@ struct P2PGameMiddlewareTests {
     @Test("Handshake fromJson returns nil for invalid payload")
     func handshake_invalidPayload() {
         let badJson: Json = .object(["foo": .string("bar")])
-        let result = P2PHandshake.fromJson(badJson)
+        let result = PeerHandshake.fromJson(badJson)
         #expect(result == nil)
     }
 
-    // MARK: - P2PMessage equality
+    // MARK: - PeerMessage equality
 
-    @Test("P2PMessage equality checks type, payload, and sequence")
+    @Test("PeerMessage equality checks type, payload, and sequence")
     func messageEquality() {
-        let msg1 = P2PMessage(type: .ping, payload: .null, sequence: 1)
-        let msg2 = P2PMessage(type: .ping, payload: .null, sequence: 1)
-        let msg3 = P2PMessage(type: .pong, payload: .null, sequence: 1)
+        let msg1 = PeerMessage(type: .ping, payload: .null, sequence: 1)
+        let msg2 = PeerMessage(type: .ping, payload: .null, sequence: 1)
+        let msg3 = PeerMessage(type: .pong, payload: .null, sequence: 1)
         #expect(msg1 == msg2)
         #expect(msg1 != msg3)
     }
 
-    @Test("P2PMessage stateSync type round-trips")
+    @Test("PeerMessage stateSync type round-trips")
     func messageRoundTrip_stateSync() {
         let payload: Json = .object([
             "cells": .array([.string("attacker"), .null, .string("king")]),
@@ -296,9 +296,9 @@ struct P2PGameMiddlewareTests {
             "moveHistory": .array([]),
             "variant": .string("copenhagen")
         ])
-        let msg = P2PMessage(type: .stateSync, payload: payload, sequence: 3)
+        let msg = PeerMessage(type: .stateSync, payload: payload, sequence: 3)
         let serialized = msg.serialize()
-        let deserialized = P2PMessage.deserialize(serialized)
+        let deserialized = PeerMessage.deserialize(serialized)
         #expect(deserialized?.type == .stateSync)
         #expect(deserialized?.payload["variant"]?.stringValue == "copenhagen")
     }

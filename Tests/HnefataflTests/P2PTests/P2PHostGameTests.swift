@@ -12,11 +12,11 @@ struct P2PHostGameTests {
         #expect(result.p2pSession?.isHost == true)
     }
 
-    @Test("hostGame sets localSide to defender")
+    @Test("hostGame sets localRole to defender")
     func hostGame_setsDefender() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .hostGame(variant: .copenhagen))
-        #expect(result.p2pSession?.localSide == .defender)
+        #expect(result.p2pSession?.localRole == Player.defender.roleString)
     }
 
     @Test("hostGame sets connectionState to connecting")
@@ -30,7 +30,7 @@ struct P2PHostGameTests {
     func hostGame_usesVariant() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .hostGame(variant: .tablut))
-        #expect(result.p2pSession?.variant == .tablut)
+        #expect(result.p2pSession?.variant == SelectedVariant.tablut.rawValue)
         #expect(result.selectedVariant == .tablut)
     }
 

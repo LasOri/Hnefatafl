@@ -12,11 +12,11 @@ struct P2PJoinGameTests {
         #expect(result.p2pSession?.isHost == false)
     }
 
-    @Test("joinGame sets localSide to attacker")
+    @Test("joinGame sets localRole to attacker")
     func joinGame_setsAttacker() {
         let state = GameState()
         let result = p2pGameReducer(state: state, action: .joinGame(peerId: "peer-abc"))
-        #expect(result.p2pSession?.localSide == .attacker)
+        #expect(result.p2pSession?.localRole == Player.attacker.roleString)
     }
 
     @Test("joinGame stores remote peerId")

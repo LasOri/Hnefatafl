@@ -31,8 +31,11 @@ struct DOMEventBridge {
                 if let buttonAction = EventParser.parseButtonAction(actionAttr) {
                     if let action = EventWiring.actionForButton(buttonAction) {
                         runtime.dispatch(action)
-                    } else if let p2pAction = EventWiring.p2pActionForButton(buttonAction, state: state) {
-                        runtime.dispatch(p2pAction)
+                    } else {
+                        let inputValues = readInputValues()
+                        if let p2pAction = EventWiring.p2pActionForButton(buttonAction, state: state, inputValues: inputValues) {
+                            runtime.dispatch(p2pAction)
+                        }
                     }
                 }
             }
@@ -67,6 +70,21 @@ struct DOMEventBridge {
             current = el.parentElement.object
         }
         return nil
+    }
+
+    private static func readInputValues() -> [String: String] {
+        var values: [String: String] = [:]
+        let document = JSObject.global.document
+        let inputs = document.querySelectorAll("[data-input]")
+        let count = Int(inputs.length.number ?? 0)
+        for i in 0..<count {
+            if let el = inputs.item(i).object,
+               let key = el.getAttribute?("data-input").string,
+               let val = el.value.string {
+                values[key] = val
+            }
+        }
+        return values
     }
 }
 

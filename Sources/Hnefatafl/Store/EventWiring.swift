@@ -48,12 +48,13 @@ struct EventWiring {
         }
     }
 
-    static func p2pActionForButton(_ action: String, state: GameState) -> P2PGameAction? {
+    static func p2pActionForButton(_ action: String, state: GameState, inputValues: [String: String] = [:]) -> P2PGameAction? {
         switch action {
         case "p2p-host":
             return .hostGame(variant: state.selectedVariant)
         case "p2p-join":
-            return .joinGame(peerId: "")
+            let peerId = inputValues["peer-id"] ?? ""
+            return .joinGame(peerId: peerId)
         case "p2p-leave":
             return .leaveGame
         default:

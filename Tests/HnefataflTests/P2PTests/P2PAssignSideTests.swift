@@ -5,7 +5,7 @@ import LINKER
 @Suite("P2P assignSide Reducer Tests")
 struct P2PAssignSideTests {
 
-    private func stateWith(session: P2PSessionState) -> GameState {
+    private func stateWith(session: PeerSessionState) -> GameState {
         GameState(
             game: Game(),
             selectedSquare: nil,
@@ -16,15 +16,15 @@ struct P2PAssignSideTests {
 
     @Test("assignSide updates localSide")
     func assignSide_updatesLocalSide() {
-        let session = P2PSessionState(isHost: true, localSide: .defender)
+        let session = PeerSessionState(isHost: true, localRole: Player.defender.roleString)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .assignSide(localSide: .attacker))
-        #expect(result.p2pSession?.localSide == .attacker)
+        #expect(result.p2pSession?.localRole == Player.attacker.roleString)
     }
 
     @Test("assignSide preserves other session fields")
     func assignSide_preservesSession() {
-        let session = P2PSessionState(isHost: true, localSide: .defender, remotePeerId: "peer-1", connectionState: .connected)
+        let session = PeerSessionState(isHost: true, localRole: Player.defender.roleString, remotePeerId: "peer-1", connectionState: .connected)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .assignSide(localSide: .attacker))
         #expect(result.p2pSession?.isHost == true)
@@ -41,15 +41,15 @@ struct P2PAssignSideTests {
 
     @Test("assignSide to defender")
     func assignSide_toDefender() {
-        let session = P2PSessionState(isHost: false, localSide: .attacker)
+        let session = PeerSessionState(isHost: false, localRole: Player.attacker.roleString)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .assignSide(localSide: .defender))
-        #expect(result.p2pSession?.localSide == .defender)
+        #expect(result.p2pSession?.localRole == Player.defender.roleString)
     }
 
     @Test("assignSide preserves game state")
     func assignSide_preservesGameState() {
-        let session = P2PSessionState(isHost: true)
+        let session = PeerSessionState(isHost: true)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .assignSide(localSide: .attacker))
         #expect(result.game.currentPlayer == state.game.currentPlayer)
@@ -57,7 +57,7 @@ struct P2PAssignSideTests {
 
     @Test("assignSide preserves variant")
     func assignSide_preservesVariant() {
-        let session = P2PSessionState(isHost: true, variant: .tablut)
+        let session = PeerSessionState(isHost: true, variant: SelectedVariant.tablut.rawValue)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,

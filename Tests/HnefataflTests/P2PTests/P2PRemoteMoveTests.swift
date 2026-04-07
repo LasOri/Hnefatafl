@@ -6,11 +6,11 @@ import LINKER
 struct P2PRemoteMoveTests {
 
     private func hostState() -> GameState {
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: true,
-            localSide: .defender,
+            localRole: Player.defender.roleString,
             connectionState: .connected,
-            variant: .copenhagen
+            variant: SelectedVariant.copenhagen.rawValue
         )
         let game = Game()
         return GameState(
@@ -35,9 +35,9 @@ struct P2PRemoteMoveTests {
 
     @Test("remoteMove is rejected when it is local player's turn")
     func remoteMove_rejectedWhenLocalTurn() {
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: false,
-            localSide: .attacker,
+            localRole: Player.attacker.roleString,
             connectionState: .connected
         )
         let state = GameState(

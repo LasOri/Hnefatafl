@@ -17,7 +17,9 @@ struct AppComponent {
 
         children.append(contentsOf: StatusComponent.render(state: state))
 
-        if state.showP2PConnect {
+        // Show P2P connect screen while not connected; show board once connected or when not in P2P mode
+        let showP2PScreen = state.showP2PConnect && !(state.p2pSession?.connectionState == .connected)
+        if showP2PScreen {
             children.append(contentsOf: P2PConnectComponent.render(state: state))
         } else {
             children.append(contentsOf: BoardComponent.render(state: state))

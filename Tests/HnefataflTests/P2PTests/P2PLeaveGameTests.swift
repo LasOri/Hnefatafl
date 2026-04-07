@@ -5,7 +5,7 @@ import LINKER
 @Suite("P2P leaveGame Reducer Tests")
 struct P2PLeaveGameTests {
 
-    private func stateWith(session: P2PSessionState, variant: SelectedVariant = .copenhagen, captures: (Int, Int) = (0, 0)) -> GameState {
+    private func stateWith(session: PeerSessionState, variant: SelectedVariant = .copenhagen, captures: (Int, Int) = (0, 0)) -> GameState {
         GameState(
             game: Game(),
             selectedSquare: nil,
@@ -19,7 +19,7 @@ struct P2PLeaveGameTests {
 
     @Test("leaveGame clears p2p session")
     func leaveGame_clearsSession() {
-        let session = P2PSessionState(isHost: true, localSide: .defender, connectionState: .connected)
+        let session = PeerSessionState(isHost: true, localRole: Player.defender.roleString, connectionState: .connected)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .leaveGame)
         #expect(result.p2pSession == nil)
@@ -27,7 +27,7 @@ struct P2PLeaveGameTests {
 
     @Test("leaveGame preserves game state")
     func leaveGame_preservesGame() {
-        let session = P2PSessionState(isHost: true)
+        let session = PeerSessionState(isHost: true)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .leaveGame)
         #expect(result.game.currentPlayer == state.game.currentPlayer)
@@ -35,7 +35,7 @@ struct P2PLeaveGameTests {
 
     @Test("leaveGame preserves settings")
     func leaveGame_preservesSettings() {
-        let session = P2PSessionState(isHost: true)
+        let session = PeerSessionState(isHost: true)
         let state = stateWith(session: session)
         let result = p2pGameReducer(state: state, action: .leaveGame)
         #expect(result.muted == state.muted)
@@ -51,7 +51,7 @@ struct P2PLeaveGameTests {
 
     @Test("leaveGame preserves captures")
     func leaveGame_preservesCaptures() {
-        let session = P2PSessionState(isHost: true)
+        let session = PeerSessionState(isHost: true)
         let state = stateWith(session: session, captures: (3, 1))
         let result = p2pGameReducer(state: state, action: .leaveGame)
         #expect(result.attackersCaptured == 3)
@@ -60,7 +60,7 @@ struct P2PLeaveGameTests {
 
     @Test("leaveGame preserves variant")
     func leaveGame_preservesVariant() {
-        let session = P2PSessionState(isHost: true, variant: .tablut)
+        let session = PeerSessionState(isHost: true, variant: SelectedVariant.tablut.rawValue)
         let state = stateWith(session: session, variant: .tablut)
         let result = p2pGameReducer(state: state, action: .leaveGame)
         #expect(result.selectedVariant == .tablut)

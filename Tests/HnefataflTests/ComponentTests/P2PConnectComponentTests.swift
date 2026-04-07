@@ -25,7 +25,7 @@ struct P2PConnectComponentTests {
 
     @Test("render with session shows connection status")
     func withSession_showsStatus() {
-        let session = P2PSessionState(isHost: true, connectionState: .connecting)
+        let session = PeerSessionState(isHost: true, connectionState: .connecting)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -38,7 +38,7 @@ struct P2PConnectComponentTests {
 
     @Test("host session shows hosting message")
     func hostSession_showsHosting() {
-        let session = P2PSessionState(isHost: true, connectionState: .connected)
+        let session = PeerSessionState(isHost: true, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -51,7 +51,7 @@ struct P2PConnectComponentTests {
 
     @Test("joiner session shows joined message")
     func joinerSession_showsJoined() {
-        let session = P2PSessionState(isHost: false, localSide: .attacker, connectionState: .connected)
+        let session = PeerSessionState(isHost: false, localRole: Player.attacker.roleString, connectionState: .connected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -64,7 +64,7 @@ struct P2PConnectComponentTests {
 
     @Test("disconnected session shows disconnect status")
     func disconnected_showsStatus() {
-        let session = P2PSessionState(isHost: true, connectionState: .disconnected)
+        let session = PeerSessionState(isHost: true, connectionState: .disconnected)
         let state = GameState(
             game: Game(),
             selectedSquare: nil,
@@ -77,7 +77,7 @@ struct P2PConnectComponentTests {
 
     @Test("reconnecting session shows attempt number")
     func reconnecting_showsAttempt() {
-        let session = P2PSessionState(isHost: false, connectionState: .reconnecting(attempt: 3))
+        let session = PeerSessionState(isHost: false, connectionState: .reconnecting(attempt: 3))
         let state = GameState(
             game: Game(),
             selectedSquare: nil,

@@ -80,7 +80,9 @@ private func reduceNewGame(state: GameState) -> GameState {
         showRules: state.showRules,
         replayStep: state.replayStep,
         showCoordinates: state.showCoordinates,
-        selectedVariant: state.selectedVariant
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -101,7 +103,10 @@ private func reduceToggleMute(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -121,7 +126,10 @@ private func reduceCycleDifficulty(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -142,7 +150,10 @@ private func reduceFlipBoard(state: GameState) -> GameState {
         boardFlipped: !state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -163,7 +174,10 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
             replayStep: state.replayStep,
-            showCoordinates: state.showCoordinates
+            showCoordinates: state.showCoordinates,
+            selectedVariant: state.selectedVariant,
+            p2pSession: state.p2pSession,
+            showP2PConnect: state.showP2PConnect
         )
     }
 
@@ -192,7 +206,10 @@ private func reduceSelectSquare(state: GameState, row: Int, col: Int) -> GameSta
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -241,7 +258,10 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 
     if let aiMove = EnhancedAIGameLoop.selectMove(game: result.game, mode: result.aiMode, difficulty: result.aiDifficulty, personality: state.aiPersonality) {
@@ -286,8 +306,11 @@ private func reduceMakeMove(state: GameState, move: Move) -> GameState {
             showRules: state.showRules,
             replayStep: state.replayStep,
             showCoordinates: state.showCoordinates,
+            selectedVariant: state.selectedVariant,
             aiEvalScore: aiStats.evalScore,
-            aiSearchDepth: aiStats.searchDepth
+            aiSearchDepth: aiStats.searchDepth,
+            p2pSession: state.p2pSession,
+            showP2PConnect: state.showP2PConnect
         )
     }
 
@@ -365,7 +388,10 @@ private func reduceUndo(state: GameState) -> GameState {
             boardFlipped: state.boardFlipped,
             showRules: state.showRules,
             replayStep: state.replayStep,
-            showCoordinates: state.showCoordinates
+            showCoordinates: state.showCoordinates,
+            selectedVariant: state.selectedVariant,
+            p2pSession: state.p2pSession,
+            showP2PConnect: state.showP2PConnect
         )
     }
 
@@ -386,7 +412,10 @@ private func reduceUndo(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -419,7 +448,10 @@ private func reduceMoveFocus(state: GameState, direction: FocusDirection) -> Gam
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -440,7 +472,10 @@ private func reduceEscape(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -468,7 +503,10 @@ private func reduceToggleAI(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -489,7 +527,10 @@ private func reduceToggleRules(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: !state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -510,7 +551,10 @@ private func reduceEnterReplay(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: max(0, lastStep),
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -530,7 +574,10 @@ private func reduceExitReplay(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: nil,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -553,7 +600,10 @@ private func reduceReplayForward(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: next,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -575,7 +625,10 @@ private func reduceReplayBack(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: prev,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -598,7 +651,10 @@ private func reduceRequestHint(state: GameState) -> GameState {
         showRules: state.showRules,
         replayStep: state.replayStep,
         hintMove: hint,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -619,7 +675,10 @@ private func reduceToggleCoordinates(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: !state.showCoordinates
+        showCoordinates: !state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -642,7 +701,10 @@ private func reduceCyclePersonality(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         replayStep: state.replayStep,
-        showCoordinates: state.showCoordinates
+        showCoordinates: state.showCoordinates,
+        selectedVariant: state.selectedVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 
@@ -663,7 +725,9 @@ private func reduceCycleVariant(state: GameState) -> GameState {
         boardFlipped: state.boardFlipped,
         showRules: state.showRules,
         showCoordinates: state.showCoordinates,
-        selectedVariant: newVariant
+        selectedVariant: newVariant,
+        p2pSession: state.p2pSession,
+        showP2PConnect: state.showP2PConnect
     )
 }
 

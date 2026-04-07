@@ -8,11 +8,12 @@ enum P2PGameAction: Action {
     case assignSide(localSide: Player)
     case remoteMove(Move)
     case syncState(GameStateSyncPayload)
+    case sessionUpdated(PeerSessionState)
 
     case peerConnected(peerId: String)
     case peerDisconnected
     case connectionError(String)
 
-    case handshakeReceived(P2PHandshake)
+    case handshakeReceived(PeerHandshake)
     case handshakeAccepted
 }

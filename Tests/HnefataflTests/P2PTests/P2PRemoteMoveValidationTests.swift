@@ -7,11 +7,11 @@ struct P2PRemoteMoveValidationTests {
 
     // Helper: host is defender, remote is attacker, attacker's turn
     private func hostState() -> GameState {
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: true,
-            localSide: .defender,
+            localRole: Player.defender.roleString,
             connectionState: .connected,
-            variant: .copenhagen
+            variant: SelectedVariant.copenhagen.rawValue
         )
         let game = Game()
         return GameState(
@@ -120,9 +120,9 @@ struct P2PRemoteMoveValidationTests {
     func wrongTurnRejected() {
         // Joiner is attacker (local), so it's attacker's turn = local turn.
         // A remote move should be rejected since it's not the remote's turn.
-        let session = P2PSessionState(
+        let session = PeerSessionState(
             isHost: false,
-            localSide: .attacker,
+            localRole: Player.attacker.roleString,
             connectionState: .connected
         )
         let state = GameState(
